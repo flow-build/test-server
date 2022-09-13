@@ -11,26 +11,34 @@ module.exports = (opts = {}) => {
 
   router.use(bodyParser());
   router.use(cors(opts.corsOptions));
+  router.get('/', healthController.healtchCheck);
 
-  router.get('/workflows/:id/scenarios',
+  const workflows = Router();
+  workflows.prefix('/workflows');
+  workflows.get('/:id/scenarios',
     baseValidator.validateUUID,
     scenariosController.getScenariosByWorkflowId
   );
-  router.get('/', healthController.healtchCheck);
-  router.post('/scenarios/:workflow_id',
-    baseValidator.validateUUID,
-    scenariosController.saveScenariosForWorkflowId
-  );
-  router.post('/scenarios',
-    validateScenario.validateSaveScenariosForBlueprint,
-    scenariosController.saveScenariosForBlueprint
-  );
-  router.patch(
-    '/workflows/:workflow_id/scenarios/:scenario_id',
+  workflows.patch(
+    '/:workflow_id/scenarios/:scenario_id',
     baseValidator.validateUUID,
     validateScenario.validateUpdateScenarioName,
     scenariosController.updateScenarioName
   );
   
+  const scenarios = Router();
+  scenarios.prefix('/scenarios');
+  scenarios.post('/workflow/:workflow_id/save',
+    baseValidator.validateUUID,
+    scenariosController.saveScenariosForWorkflowId
+  );
+  scenarios.post('/blueprint/save',
+    validateScenario.validateSaveScenariosForBlueprint,
+    scenariosController.saveScenariosForBlueprint
+  );
+  
+  router.use(workflows.routes());
+  router.use(scenarios.routes());
+
   return router; 
 }

@@ -116,10 +116,10 @@ describe('PATCH /workflows/:workflow_id/scenarios/:scenario_id', () => {
   });
 });
 
-describe('POST /scenarios', () => {
+describe('POST /scenarios/blueprint/save', () => {
   test('should return 201', async () => {
 
-    const response = await request.post('/scenarios')
+    const response = await request.post('/scenarios/blueprint/save')
       .send({
         workflow_id: '8a126b08-f5e2-48a8-b913-d201ac6ca409', 
         blueprint_spec: verySimpleBP.blueprint_spec
@@ -131,7 +131,7 @@ describe('POST /scenarios', () => {
 
   test('should return 400 for existing workflow_id', async () => {
 
-    const response = await request.post('/scenarios')
+    const response = await request.post('/scenarios/blueprint/save')
       .send({
         workflow_id: uuid(), 
         blueprint_spec: verySimpleBP.blueprint_spec
@@ -144,7 +144,7 @@ describe('POST /scenarios', () => {
 
   test('should return 400 for invalid request body', async () => {
 
-    const response = await request.post('/scenarios')
+    const response = await request.post('/scenarios/blueprint/save')
       .send({
         blueprint_spec: verySimpleBP.blueprint_spec
       });
@@ -156,7 +156,7 @@ describe('POST /scenarios', () => {
 
   test('should return 400 for invalid request body', async () => {
 
-    const response = await request.post('/scenarios')
+    const response = await request.post('/scenarios/blueprint/save')
       .send({
         workflow_id: uuid()
       });
@@ -168,7 +168,7 @@ describe('POST /scenarios', () => {
 
   test('should return 400 for invalid request body', async () => {
 
-    const response = await request.post('/scenarios')
+    const response = await request.post('/scenarios/blueprint/save')
       .send({
         workflow_id: uuid(),
         blueprint_spec: {
