@@ -7,21 +7,98 @@ const getScenariosByWorkflowId = async (ctx, next) => {
   const workflow_id = ctx.params.id;
 
   try {
-    const data = await scenariosServices.getScenariosByWorkflowId(workflow_id);
+    const dataDb = await scenariosServices.getScenariosByWorkflowIdDb(workflow_id);
     
-    if (!data) {
-      ctx.status = 404,
-      ctx.body = {
-        message: 'Workflow not found'
+    if (!dataDb) {
+      const dataFb = await scenariosServices.getScenariosByWorkflowIdFb(workflow_id);
+      
+      if (!dataFb) {
+        ctx.status = 404,
+        ctx.body = {
+          message: 'Workflow not found'
+        }
+        
+      } else {
+        ctx.status = 200;
+        ctx.body = {
+          totalScenarios: dataFb.total_scenarios,
+          scenarios: dataFb.scenarios
+        }
       }
     } else {
       ctx.status = 200;
       ctx.body = {
-        totalScenarios: data.total_scenarios,
-        scenarios: data.scenarios
+        totalScenarios: dataDb.total_scenarios,
+        scenarios: dataDb.scenarios
       }
     }
   } catch (err) {
+    if (err)
+    throw new Error(err);
+  }
+
+  return next();
+}
+
+const saveScenariosForBlueprint = async (ctx, next) => {
+  logger.debug('saveScenariosForBlueprint controller called');
+
+  const blueprint = ctx.request.body;
+
+  try {
+    const data = await scenariosServices.getScenariosByWorkflowIdDb(blueprint.workflow_id);
+
+    if (!data) {
+      const dataSaved = await scenariosServices.saveScenariosForBlueprint(blueprint);
+
+      ctx.status = 201;
+      ctx.body = {
+        totalScenarios: dataSaved.total_scenarios,
+        scenarios: dataSaved.scenarios
+      }
+    } else {
+      ctx.status = 400;
+      ctx.body = {
+        message: `Scenarios already exists for workflow_id: ${blueprint.workflow_id}`
+      }
+    }
+  } catch(err) {
+    throw new Error(err);
+  }
+
+  return next();
+}
+
+const saveScenariosForWorkflowId = async (ctx, next) => {
+  logger.debug('saveScenariosForWorkflowId controller called');
+
+  const { workflow_id } = ctx.params;
+
+  try {
+    const data = await scenariosServices.getScenariosByWorkflowIdDb(workflow_id);
+
+    if (!data) {
+      const dataSaved = await scenariosServices.saveScenariosForWorkflowId(workflow_id);
+
+      if (!dataSaved) {
+        ctx.status = 404,
+        ctx.body = {
+          message: 'Workflow not found'
+        }
+      } else {
+        ctx.status = 201;
+        ctx.body = {
+          totalScenarios: dataSaved.total_scenarios,
+          scenarios: dataSaved.scenarios
+        }
+      }
+    } else {
+      ctx.status = 400;
+      ctx.body = {
+        message: `Scenarios already exists for workflow_id: ${workflow_id}`
+      }
+    }
+  } catch(err) {
     throw new Error(err);
   }
 
@@ -35,7 +112,7 @@ const updateScenarioName = async (ctx, next) => {
   const { name } = ctx.request.body;
 
   try {
-    const data = await scenariosServices.getScenariosByWorkflowId(workflow_id);
+    const data = await scenariosServices.getScenariosByWorkflowIdDb(workflow_id);
 
     if (!data) {
       ctx.status = 404;
@@ -71,5 +148,7 @@ const updateScenarioName = async (ctx, next) => {
 
 module.exports = {
   getScenariosByWorkflowId,
+  saveScenariosForBlueprint,
+  saveScenariosForWorkflowId,
   updateScenarioName
 }

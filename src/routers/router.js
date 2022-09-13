@@ -12,10 +12,21 @@ module.exports = (opts = {}) => {
   router.use(bodyParser());
   router.use(cors(opts.corsOptions));
 
-  router.get('/workflow/:id/scenarios', baseValidator.validateUUID, scenariosController.getScenariosByWorkflowId);
+  router.get('/workflows/:id/scenarios',
+    baseValidator.validateUUID,
+    scenariosController.getScenariosByWorkflowId
+  );
   router.get('/', healthController.healtchCheck);
+  router.post('/scenarios/:workflow_id',
+    baseValidator.validateUUID,
+    scenariosController.saveScenariosForWorkflowId
+  );
+  router.post('/scenarios',
+    validateScenario.validateSaveScenariosForBlueprint,
+    scenariosController.saveScenariosForBlueprint
+  );
   router.patch(
-    '/workflow/:workflow_id/scenarios/:scenario_id',
+    '/workflows/:workflow_id/scenarios/:scenario_id',
     baseValidator.validateUUID,
     validateScenario.validateUpdateScenarioName,
     scenariosController.updateScenarioName
