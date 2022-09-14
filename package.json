@@ -39,6 +39,7 @@
     "axios": "^0.27.2",
     "dotenv": "16.0.2",
     "flowbuild-coverage-calculator": "1.4.3",
+    "jsonwebtoken": "^8.5.1",
     "knex": "2.3.0",
     "koa": "2.13.4",
     "koa-bodyparser": "4.3.0",
