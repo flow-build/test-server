@@ -8,16 +8,15 @@ const getScenariosByWorkflowId = async (ctx, next) => {
 
   try {
     const dataDb = await scenariosServices.getScenariosByWorkflowIdDb(workflow_id);
-    
+
     if (!dataDb) {
-      const dataFb = await scenariosServices.getScenariosByWorkflowIdFb(workflow_id);
-      
+      const dataFb = await scenariosServices.getScenariosByWorkflowIdFb(workflow_id, true);
+
       if (!dataFb) {
-        ctx.status = 404,
+        ctx.status = 404
         ctx.body = {
           message: 'Workflow not found'
         }
-        
       } else {
         ctx.status = 200;
         ctx.body = {
@@ -33,7 +32,6 @@ const getScenariosByWorkflowId = async (ctx, next) => {
       }
     }
   } catch (err) {
-    if (err)
     throw new Error(err);
   }
 
@@ -62,7 +60,7 @@ const saveScenariosForBlueprint = async (ctx, next) => {
         message: `Scenarios already exists for workflow_id: ${blueprint.workflow_id}`
       }
     }
-  } catch(err) {
+  } catch (err) {
     throw new Error(err);
   }
 
@@ -98,7 +96,7 @@ const saveScenariosForWorkflowId = async (ctx, next) => {
         message: `Scenarios already exists for workflow_id: ${workflow_id}`
       }
     }
-  } catch(err) {
+  } catch (err) {
     throw new Error(err);
   }
 
@@ -131,7 +129,7 @@ const updateScenarioName = async (ctx, next) => {
         data.scenarios = data.scenarios.map((scenario) => {
           if (scenario.id == scenario_id) {
             scenario.name = name;
-          } 
+          }
           return scenario;
         });
         const scenarioUpdated = await scenariosServices.updateScenarioName(workflow_id, data);
@@ -139,7 +137,7 @@ const updateScenarioName = async (ctx, next) => {
         ctx.body = scenarioUpdated;
       }
     }
-  } catch(err) {
+  } catch (err) {
     throw new Error(err);
   }
 

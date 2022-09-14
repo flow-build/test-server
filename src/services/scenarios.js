@@ -35,7 +35,7 @@ const saveScenariosForBlueprint = async (blueprint) => {
 
   const data = getAllPaths(blueprint);
 
-  const [ dataSaved ] = await db('scenarios').insert(
+  const [dataSaved] = await db('scenarios').insert(
     {
       id: uuid(),
       workflow_id: blueprint.workflow_id,
@@ -43,7 +43,7 @@ const saveScenariosForBlueprint = async (blueprint) => {
       scenarios: JSON.stringify(data.scenarios)
     }
   ).returning('*');
-  
+
   return dataSaved;
 }
 
@@ -62,7 +62,7 @@ const saveScenariosForWorkflowId = async (workflow_id) => {
   } else {
     const data = getAllPaths(blueprint);
 
-    const [ dataSaved ] = await db('scenarios').insert(
+    const [dataSaved] = await db('scenarios').insert(
       {
         id: uuid(),
         workflow_id: workflow_id,
@@ -70,7 +70,7 @@ const saveScenariosForWorkflowId = async (workflow_id) => {
         scenarios: JSON.stringify(data.scenarios)
       }
     ).returning('*');
-    
+
     return dataSaved;
   }
 }
@@ -78,11 +78,11 @@ const saveScenariosForWorkflowId = async (workflow_id) => {
 const updateScenarioName = async (workflow_id, data) => {
   logger.debug('updateScenarioName service called');
 
-  const [ dataUpdated ] = await db('scenarios')
+  const [dataUpdated] = await db('scenarios')
     .where('workflow_id', workflow_id)
-    .update({...data, scenarios: JSON.stringify(data.scenarios), updated_at: 'now'})
+    .update({ ...data, scenarios: JSON.stringify(data.scenarios), updated_at: 'now' })
     .returning('scenarios');
-  
+
   return dataUpdated;
 }
 
