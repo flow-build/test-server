@@ -103,6 +103,41 @@ const saveScenariosForWorkflowId = async (ctx, next) => {
   return next();
 }
 
+const getDiagramForScenario = async (ctx, next) => {
+  logger.debug('getDiagramForScenario controller called');
+
+  const { workflow_id, scenario_id } = ctx.params;
+
+  try {
+    let data = await scenariosServices.getScenariosByWorkflowIdFb(workflow_id, true);
+
+    if (!data) {
+      ctx.status = 404;
+      ctx.body = {
+        message: 'Blueprint not found on server'
+      }
+    } else {
+      const scenario = data.scenarios.find((scenario) => scenario.id == scenario_id);
+
+      if (!scenario) {
+        ctx.status = 404;
+        ctx.body = {
+          message: 'Scenario not found'
+        }
+      } else {
+        const diagram = await scenariosServices.getDiagramForScenario(workflow_id, scenario);
+
+        ctx.status = 200;
+        ctx.body = diagram;
+      }
+    }
+  } catch (err) {
+    throw new Error(err)
+  }
+
+  return next();
+}
+
 const updateScenarioName = async (ctx, next) => {
   logger.debug('updateScenarioName controller called');
 
@@ -148,5 +183,6 @@ module.exports = {
   getScenariosByWorkflowId,
   saveScenariosForBlueprint,
   saveScenariosForWorkflowId,
+  getDiagramForScenario,
   updateScenarioName
 }

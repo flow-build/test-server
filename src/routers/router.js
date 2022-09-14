@@ -25,6 +25,11 @@ module.exports = (opts = {}) => {
     validateScenario.validateUpdateScenarioName,
     scenariosController.updateScenarioName
   );
+  workflows.get(
+    '/:workflow_id/scenarios/:scenario_id',
+    baseValidator.validateUUID,
+    scenariosController.getDiagramForScenario
+  );
   
   const scenarios = Router();
   scenarios.prefix('/scenarios');

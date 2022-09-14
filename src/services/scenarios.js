@@ -2,7 +2,9 @@ const { db } = require('../utils/db');
 const { logger } = require('../utils/logger');
 const { v4: uuid } = require('uuid');
 const { getAllPaths } = require('@flowbuild/test-core');
-const { flowbuildApi } = require('../utils/flowbuildApi');
+const { flowbuildApi } = require('../utils/api');
+const { getToken } = require('../utils/api');
+const { buildXmlDiagram } = require('@flowbuild/nodejs-diagram-builder');
 
 const getScenariosByWorkflowIdDb = async (workflow_id) => {
   logger.debug('getScenariosByWorkflowIdDb service called');
@@ -12,20 +14,24 @@ const getScenariosByWorkflowIdDb = async (workflow_id) => {
   return dataDb;
 }
 
-const getScenariosByWorkflowIdFb = async (workflow_id) => {
+const getScenariosByWorkflowIdFb = async (workflow_id, ignoreLoop = false) => {
   logger.debug('getScenariosByWorkflowIdFb service called');
 
-  const blueprint = await flowbuildApi.get(`/workflows/${workflow_id}`)
+  const token = await getToken();
+
+  const blueprint = await flowbuildApi.get(`/workflows/${workflow_id}`, {
+    headers: { 'Authorization': `Bearer ${token}` }
+  })
     .then((response) => response.data)
     .catch((error) => {
       logger.error(error.message);
       return;
     });
-  
+
   if (!blueprint) {
     return;
   } else {
-    const dataFb = getAllPaths(blueprint);
+    const dataFb = getAllPaths(blueprint, ignoreLoop);
     return dataFb;
   }
 }
@@ -50,7 +56,11 @@ const saveScenariosForBlueprint = async (blueprint) => {
 const saveScenariosForWorkflowId = async (workflow_id) => {
   logger.debug('saveScenariosForWorkflowId service called');
 
-  const blueprint = await flowbuildApi.get(`/workflows/${workflow_id}`)
+  const token = await getToken();
+
+  const blueprint = await flowbuildApi.get(`/workflows/${workflow_id}`, {
+    headers: { 'Authorization': `Bearer ${token}` }
+  })
     .then((response) => response.data)
     .catch((error) => {
       logger.error(error.message);
@@ -75,6 +85,39 @@ const saveScenariosForWorkflowId = async (workflow_id) => {
   }
 }
 
+const getDiagramForScenario = async (workflow_id, scenario) => {
+  const token = await getToken();
+
+  const blueprint = await flowbuildApi.get(`/workflows/${workflow_id}`, {
+    headers: { 'Authorization': `Bearer ${token}` }
+  })
+    .then((response) => response.data)
+    .catch((error) => {
+      logger.error(error.message);
+      return;
+    });
+    
+  let repeatedNodes = [];
+  blueprint.blueprint_spec.nodes = blueprint.blueprint_spec.nodes
+    .filter((node) => scenario.nodes.includes(node.id))
+    .map((node) => {
+      if (node.type.toLowerCase() === 'flow') {
+        const nextNodes = Object.values(node.next);
+        nextNodes.forEach((next) => {
+          if (scenario.nodes.includes(next) && !repeatedNodes.includes(next)) {
+            node.next = {
+              next: next
+            };
+          }
+        })
+      }
+      repeatedNodes.push(node.id);
+      return node;
+    })
+  const diagram = await buildXmlDiagram(blueprint);
+  return diagram;
+}
+
 const updateScenarioName = async (workflow_id, data) => {
   logger.debug('updateScenarioName service called');
 
@@ -91,5 +134,6 @@ module.exports = {
   getScenariosByWorkflowIdFb,
   saveScenariosForBlueprint,
   saveScenariosForWorkflowId,
+  getDiagramForScenario,
   updateScenarioName
 }
