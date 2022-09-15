@@ -1,6 +1,7 @@
 const Router = require('@koa/router');
 const bodyParser = require('koa-bodyparser');
 const cors = require('koa2-cors');
+const fs = require('fs');
 const baseValidator = require('../validators/base');
 const validateScenario = require('../validators/scenarios');
 const healthController = require('../controllers/healthCheck');
@@ -12,6 +13,11 @@ module.exports = (opts = {}) => {
   router.use(bodyParser());
   router.use(cors(opts.corsOptions));
   router.get('/', healthController.healtchCheck);
+  router.get('/swagger', (ctx) => {
+    ctx.type = 'text/html; charset=utf-8'
+    ctx.body = fs.createReadStream('public/swagger-ui/index.html')
+    return ctx;
+  });
 
   const workflows = Router();
   workflows.prefix('/workflows');

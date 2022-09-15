@@ -1,0 +1,654 @@
+openapi: '3.0.0'
+info:
+  version: 1.0.0
+  title: Test Server
+paths:
+  /:
+    get:
+      tags:
+      - HealthCheck
+      summary: Health Check
+      description: 
+        Check health status
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                  version:
+                    type: string
+              example:
+                {
+                  "message": "Tests Server running",
+                  "version": "1.0.0"
+                }
+        '500':
+          description: Internal Server Error
+  /workflows/{id}/scenarios:
+    get:
+      tags:
+      - Workflow / Scenarios
+      summary: Get Scenarios By Workflow ID
+      description: >
+        Get all possible scenarios for a specific Workflow ID
+      parameters:
+        - in: path
+          name: id
+          description: Workflow id
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  totalScenarios:
+                    type: string
+                  scenarios:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        id: 
+                          type: integer
+                        name: 
+                          type: string
+                        steps:
+                          type: integer
+                        nodes:
+                          type: array
+                          items:
+                            type: string
+              example:
+                {
+                  "totalScenarios": "1",
+                  "scenarios": [
+                    {
+                      "id": 0,
+                      "name": "START->END",
+                      "nodes": [
+                        "START",
+                        "ORDER-PIZZA",
+                        "TAKE-ORDER",
+                        "PREPARE-PIZZA",
+                        "BRING-PIZZA",
+                        "RECEIVE-PIZZA",
+                        "END"
+                      ],
+                      "steps": 7
+                    }
+                  ]
+                }
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+              example:
+                {
+                  "message": "Invalid uuid"
+                }
+        '404':
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+              example:
+                {
+                  "message": "Workflow not found"
+                }
+        '500':
+          description: Internal Server Error
+  /workflows/{workflow_id}/scenarios/{scenario_id}:
+    get:
+      tags:
+      - Workflow / Scenarios
+      summary: Get Diagram For Scenario
+      description: 
+        Get diagram for a specific scenario of a workflow id
+      parameters:
+        - in: path
+          name: workflow_id
+          description: Workflow id
+          required: true
+          schema:
+            type: string
+            format: uuid
+        - in: path
+          name: scenario_id
+          description: Scenario id
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: OK
+          content:
+            text/html; charset=utf-8:
+              example: <?xml version="1.0" encoding="UTF-8"?><bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:bioc="http://bpmn.io/schema/bpmn/biocolor/1.0" xmlns:color="http://www.omg.org/spec/BPMN/non-normative/color/1.0" xmlns:di="http://www.omg.org/spec/DD/20100524/DI"><bpmn:process id="Global_Process" isExecutable="true"><bpmn:laneSet id="Global_LaneSet"><bpmn:lane id="Lane_anyone" name="anyone"><bpmn:flowNodeRef>Node_START</bpmn:flowNodeRef><bpmn:flowNodeRef>Node_BAG</bpmn:flowNodeRef><bpmn:flowNodeRef>Node_END</bpmn:flowNodeRef></bpmn:lane></bpmn:laneSet><bpmn:startEvent xmlns:custom="http://custom/ns" id="Node_START" name="Start Example" custom:parameters="{&#39;timeout&#39;:100,&#39;input_schema&#39;:{}}"><bpmn:outgoing>Flow_START_BAG</bpmn:outgoing></bpmn:startEvent><bpmn:serviceTask xmlns:custom="http://custom/ns" id="Node_BAG" name="Set to bag" custom:parameters="{&#39;input&#39;:{&#39;user_id&#39;:&#39;1&#39;}}" custom:category="settobag"><bpmn:incoming>Flow_START_BAG</bpmn:incoming><bpmn:outgoing>Flow_BAG_END</bpmn:outgoing></bpmn:serviceTask><bpmn:endEvent xmlns:custom="http://custom/ns" id="Node_END" name="END" custom:parameters="{}"><bpmn:incoming>Flow_BAG_END</bpmn:incoming></bpmn:endEvent><bpmn:sequenceFlow id="Flow_START_BAG" sourceRef="Node_START" targetRef="Node_BAG" /><bpmn:sequenceFlow id="Flow_BAG_END" sourceRef="Node_BAG" targetRef="Node_END" /></bpmn:process><bpmn:collaboration id="Global_Colab" workflowId="gUv_xxzmOJx5lMYzrxYZh"><bpmn:participant id="Global_Actor" name="DIAGRAM_EXAMPLE" processRef="Global_Process" /></bpmn:collaboration><bpmndi:BPMNDiagram id="Global_Diagram"><bpmndi:BPMNPlane id="Global_Plane" bpmnElement="Global_Colab"><bpmndi:BPMNShape id="Node_START_di" bpmnElement="Node_START"><dc:Bounds x="114" y="72" width="36" height="36" /></bpmndi:BPMNShape><bpmndi:BPMNShape id="Node_BAG_di" bpmnElement="Node_BAG" bioc:stroke="#fb8c00" bioc:fill="#ffe0b2" color:background-color="#ffe0b2" color:border-color="#fb8c00"><dc:Bounds x="180" y="50" width="100" height="80" /></bpmndi:BPMNShape><bpmndi:BPMNShape id="Node_END_di" bpmnElement="Node_END"><dc:Bounds x="310" y="72" width="36" height="36" /></bpmndi:BPMNShape><bpmndi:BPMNEdge id="Flow_START_BAG_di" bpmnElement="Flow_START_BAG"><di:waypoint x="150" y="90" /><di:waypoint x="160" y="90" /><di:waypoint x="160" y="90" /><di:waypoint x="180" y="90" /></bpmndi:BPMNEdge><bpmndi:BPMNEdge id="Flow_BAG_END_di" bpmnElement="Flow_BAG_END"><di:waypoint x="280" y="90" /><di:waypoint x="290" y="90" /><di:waypoint x="290" y="90" /><di:waypoint x="310" y="90" /></bpmndi:BPMNEdge><bpmndi:BPMNShape id="Lane_anyone_di" bpmnElement="Lane_anyone"><dc:Bounds x="80" y="10" width="360" height="160" /></bpmndi:BPMNShape><bpmndi:BPMNShape id="Global_Actor_di" bpmnElement="Global_Actor"><dc:Bounds x="50" y="10" width="390" height="160" /></bpmndi:BPMNShape></bpmndi:BPMNPlane></bpmndi:BPMNDiagram></bpmn:definitions>
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+              example:
+                {
+                  "message": "Invalid uuid"
+                }
+        '404':
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+              example:
+                {
+                  "message": "Blueprint not found on server"
+                }
+        '500':
+          description: Internal Server Error
+    patch:
+      tags:
+      - Workflow / Scenarios
+      summary: Update Scenario Name
+      description: 
+        Update a specific scenario name of a specific workflow id
+      parameters:
+        - in: path
+          name: workflow_id
+          description: Workflow id
+          required: true
+          schema:
+            type: string
+            format: uuid
+        - in: path
+          name: scenario_id
+          description: Scenario id
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                  description: Scenario name
+            example:
+              {
+                "name": "Happy Path"
+              }
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  scenarios:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        id: 
+                          type: integer
+                        name: 
+                          type: string
+                        steps:
+                          type: integer
+                        nodes:
+                          type: array
+                          items:
+                            type: string
+              example:
+                {
+                  "totalScenarios": "1",
+                  "scenarios": [
+                    {
+                      "id": 0,
+                      "name": Happy Path",
+                      "nodes": [
+                        "START",
+                        "ORDER-PIZZA",
+                        "TAKE-ORDER",
+                        "PREPARE-PIZZA",
+                        "BRING-PIZZA",
+                        "RECEIVE-PIZZA",
+                        "END"
+                      ],
+                      "steps": 7
+                    }
+                  ]
+                }
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+              example:
+                {
+                  "message": "Invalid Request Body",
+                  "errors": [
+                    {
+                      "field": "",
+                      "message": "must have required property 'name'"
+                    }
+                  ]
+                }
+        '404':
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+              example:
+                {
+                  "message": "Workflow not found"
+                }
+        '500':
+          description: Internal Server Error
+  /scenarios/blueprint/save:
+    post:
+      tags:
+      - Scenarios
+      summary: Save Scenarios By Blueprint
+      description: 
+        Save scenarios for a given blueprint
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [workflow_id, blueprint_spec]
+              properties:
+                workflow_id:
+                  type: string
+                  format: uuid
+                name:
+                  type: string
+                created_at:
+                  type: string
+                  format: date-time
+                description:
+                  type: string
+                version:
+                  type: integer
+                hash:
+                  type: [string, null]
+                isLatest:
+                  type: boolean
+                blueprint_spec:
+                  type: object
+                  required: [nodes]
+                  properties:
+                    lanes:
+                      type: array
+                      itmes:
+                        type: object
+                    nodes:
+                      type: array
+                      items: 
+                        type: object
+                        required: [id, next, type]
+                        properties:
+                          id:
+                            type: string
+                          next:
+                            type: string
+                          type:
+                            type: string
+                    prepare:
+                      type: array
+                    environment:
+                      type: object
+                    requirements:
+                      type: array
+                  additionalProperties: false
+              additionalProperties: false
+            example:
+              {
+                "workflow_id": "d373bef0-1152-11ea-9576-9584815cab84",
+                "created_at": "2022-09-09T17:45:07.366Z",
+                "name": "test_workflow",
+                "description": "Workflow para rodar testes sobre a aplicação",
+                "version": 1,
+                "hash": null,
+                "blueprint_spec": {
+                  "lanes": [
+                    {
+                      "id": "1",
+                      "name": "the_only_lane",
+                      "rule": [
+                          "fn",
+                          [
+                              "&",
+                              "args"
+                          ],
+                          true
+                      ]
+                    }
+                  ],
+                  "nodes": [
+                    {
+                      "id": "1",
+                      "name": "Start node",
+                      "next": "2",
+                      "type": "Start",
+                      "lane_id": "1",
+                      "parameters": {
+                          "input_schema": {}
+                      }
+                    },
+                    {
+                      "id": "2",
+                      "name": "User Task",
+                      "next": "3",
+                      "type": "UserTask",
+                      "lane_id": "1",
+                      "parameters": {
+                        "input": {
+                          "dates": {
+                            "$ref": "bag.dates"
+                          },
+                          "uuids": {
+                            "$ref": "bag.uuids"
+                          }
+                        },
+                        "action": "do something"
+                      }
+                    },
+                    {
+                      "id": "3",
+                      "name": "Set To Bag Task",
+                      "next": "4",
+                      "type": "SystemTask",
+                      "lane_id": "1",
+                      "category": "SetToBag",
+                      "parameters": {
+                        "input": {
+                          "n_js": {
+                            "$ref": "result.n_js"
+                          },
+                          "keyword": {
+                            "$ref": "result.keyword"
+                          },
+                          "n_interp": {
+                            "$ref": "result.n_interp"
+                          }
+                        }
+                      }
+                    },
+                    {
+                      "id": "4",
+                      "name": "Scripted Task",
+                      "next": "5",
+                      "type": "ScriptTask",
+                      "lane_id": "1",
+                      "parameters": {
+                        "input": {
+                          "n_interp": {
+                            "$ref": "bag.n_interp"
+                          }
+                        },
+                        "script": {
+                          "type": "js",
+                          "package": "test_workflow_package",
+                          "function": "lisp_test_task"
+                        }
+                      }
+                    },
+                    {
+                      "id": "5",
+                      "name": "Set To Bag Task",
+                      "next": "6",
+                      "type": "SystemTask",
+                      "lane_id": "1",
+                      "category": "SetToBag",
+                      "parameters": {
+                        "input": {
+                          "dates": {
+                            "$ref": "result.dates"
+                          }
+                        }
+                      }
+                    },
+                    {
+                      "id": "6",
+                      "name": "Set To Bag Task",
+                      "next": "7",
+                      "type": "SystemTask",
+                      "lane_id": "1",
+                      "category": "SetToBag",
+                      "parameters": {
+                        "input": {
+                          "uuids": {
+                            "$ref": "result.uuids"
+                          }
+                        }
+                      }
+                    },
+                    {
+                      "id": "7",
+                      "name": "Flow node",
+                      "next": {
+                        "end": "8",
+                        "default": "2"
+                      },
+                      "type": "Flow",
+                      "lane_id": "1",
+                    "parameters": {
+                        "input": {
+                          "keyword": {
+                            "$ref": "bag.keyword"
+                          }
+                        }
+                      }
+                    },
+                    {
+                      "id": "8",
+                      "name": "Finish node",
+                      "next": null,
+                      "type": "Finish",
+                      "lane_id": "1"
+                    }
+                  ],
+                  "prepare": [],
+                  "environment": {},
+                  "requirements": [
+                    "core",
+                    "test_workflow_package"
+                  ]
+                },
+                "isLatest": true
+              }
+      responses:
+        '201':
+          description: Created
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  totalScenarios:
+                    type: string
+                  scenarios:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        id: 
+                          type: integer
+                        name: 
+                          type: string
+                        steps:
+                          type: integer
+                        nodes:
+                          type: array
+                          items:
+                            type: string
+              example:
+                {
+                  "totalScenarios": "1",
+                  "scenarios": [
+                    {
+                      "id": 0,
+                      "name": Happy Path",
+                      "nodes": [
+                        "START",
+                        "ORDER-PIZZA",
+                        "TAKE-ORDER",
+                        "PREPARE-PIZZA",
+                        "BRING-PIZZA",
+                        "RECEIVE-PIZZA",
+                        "END"
+                      ],
+                      "steps": 7
+                    }
+                  ]
+                }
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+              example:
+                {
+                  "message": "Invalid Request Body",
+                  "errors": [
+                    {
+                      "field": "",
+                      "message": "must have required property 'workflow_id'"
+                    }
+                  ]
+                }
+        '500':
+          description: Internal Server Error
+  /scenarios/workflow/{workflow_id}/save:
+    post:
+      tags:
+      - Workflow / Scenarios
+      summary: Save Scenarios By Workflow ID
+      description: 
+        Save scenarios for a specific workflow id
+      parameters:
+        - in: path
+          name: workflow_id
+          description: Workflow id
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '201':
+          description: Created
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  totalScenarios:
+                    type: string
+                  scenarios:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        id: 
+                          type: integer
+                        name: 
+                          type: string
+                        steps:
+                          type: integer
+                        nodes:
+                          type: array
+                          items:
+                            type: string
+              example:
+                {
+                  "totalScenarios": "1",
+                  "scenarios": [
+                    {
+                      "id": 0,
+                      "name": Happy Path",
+                      "nodes": [
+                        "START",
+                        "ORDER-PIZZA",
+                        "TAKE-ORDER",
+                        "PREPARE-PIZZA",
+                        "BRING-PIZZA",
+                        "RECEIVE-PIZZA",
+                        "END"
+                      ],
+                      "steps": 7
+                    }
+                  ]
+                }
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+              example:
+                {
+                  "message": "Scenarios already exists for workflow_id: 8fc66458-1137-4c1a-9aef-5dcdca9a19f6"
+                }
+        '404':
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+              example:
+                {
+                  "message": "Workflow not found"
+                }
+        '500':
+          description: Internal Server Error
