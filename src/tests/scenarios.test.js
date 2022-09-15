@@ -12,11 +12,11 @@ beforeAll(async () => {
   request = supertest(server);
 })
 
-beforeEach(() => {
+beforeAll(() => {
   return db.raw('START TRANSACTION');
 });
 
-afterEach(() => {
+afterAll(() => {
   return db.raw('ROLLBACK');
 });
 
@@ -121,25 +121,25 @@ describe('POST /scenarios/blueprint/save', () => {
 
     const response = await request.post('/scenarios/blueprint/save')
       .send({
-        workflow_id: '8a126b08-f5e2-48a8-b913-d201ac6ca409', 
+        workflow_id: uuid(), 
         blueprint_spec: verySimpleBP.blueprint_spec
       });
-
-    expect(response.status).toBe(400);
-    expect(response.body.message).toEqual('Scenarios already exists for workflow_id: 8a126b08-f5e2-48a8-b913-d201ac6ca409');
+    
+    expect(response.status).toBe(201);
+    expect(response.body.totalScenarios).toBeDefined();
+    expect(response.body.scenarios.length).toBeTruthy();
   });
 
   test('should return 400 for existing workflow_id', async () => {
 
     const response = await request.post('/scenarios/blueprint/save')
-      .send({
-        workflow_id: uuid(), 
-        blueprint_spec: verySimpleBP.blueprint_spec
-      });
+    .send({
+      workflow_id: '8a126b08-f5e2-48a8-b913-d201ac6ca409', 
+      blueprint_spec: verySimpleBP.blueprint_spec
+    });  
 
-    expect(response.status).toBe(201);
-    expect(response.body.totalScenarios).toBeDefined();
-    expect(response.body.scenarios.length).toBeTruthy();
+    expect(response.status).toBe(400);
+    expect(response.body.message).toEqual('Scenarios already exists for workflow_id: 8a126b08-f5e2-48a8-b913-d201ac6ca409');
   });
 
   test('should return 400 for invalid request body', async () => {
