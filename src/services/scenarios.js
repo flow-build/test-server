@@ -2,8 +2,7 @@ const { db } = require('../utils/db');
 const { logger } = require('../utils/logger');
 const { v4: uuid } = require('uuid');
 const { getAllPaths } = require('@flowbuild/test-core');
-const { flowbuildApi } = require('../utils/api');
-const { getToken } = require('../utils/api');
+const { flowbuildApi, getToken } = require('../utils/api');
 const { buildXmlDiagram } = require('@flowbuild/nodejs-diagram-builder');
 
 const getScenariosByWorkflowIdDb = async (workflow_id) => {

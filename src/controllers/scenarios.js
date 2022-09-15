@@ -10,7 +10,7 @@ const getScenariosByWorkflowId = async (ctx, next) => {
     const dataDb = await scenariosServices.getScenariosByWorkflowIdDb(workflow_id);
 
     if (!dataDb) {
-      const dataFb = await scenariosServices.getScenariosByWorkflowIdFb(workflow_id, true);
+      const dataFb = await scenariosServices.getScenariosByWorkflowIdFb(workflow_id);
 
       if (!dataFb) {
         ctx.status = 404
@@ -20,7 +20,7 @@ const getScenariosByWorkflowId = async (ctx, next) => {
       } else {
         ctx.status = 200;
         ctx.body = {
-          totalScenarios: dataFb.total_scenarios,
+          totalScenarios: dataFb.totalScenarios,
           scenarios: dataFb.scenarios
         }
       }
