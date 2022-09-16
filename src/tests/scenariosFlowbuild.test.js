@@ -60,10 +60,10 @@ describe('POST /scenarios/workflow/:id/save with id from flowbuild server', () =
   });
 });
 
-describe('GET /workflows/:workflow_id/scenarios/:scenario_id with workflow_id from flowbuild server', () => {
+describe('GET /workflows/:workflow_id/scenarios/:scenario_id/diagram with workflow_id from flowbuild server', () => {
   test('should return 200', async () => {
 
-    const response = await request.get('/workflows/d373bef0-1152-11ea-9576-9584815cab84/scenarios/0')
+    const response = await request.get('/workflows/d373bef0-1152-11ea-9576-9584815cab84/scenarios/0/diagram')
 
     expect(response.status).toBe(200);
     expect(response.body).toBeDefined();

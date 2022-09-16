@@ -118,7 +118,7 @@ paths:
                 }
         '500':
           description: Internal Server Error
-  /workflows/{workflow_id}/scenarios/{scenario_id}:
+  /workflows/{workflow_id}/scenarios/{scenario_id}/diagram:
     get:
       tags:
       - Workflow / Scenarios

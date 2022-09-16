@@ -32,7 +32,7 @@ module.exports = (opts = {}) => {
     scenariosController.updateScenarioName
   );
   workflows.get(
-    '/:workflow_id/scenarios/:scenario_id',
+    '/:workflow_id/scenarios/:scenario_id/diagram',
     baseValidator.validateUUID,
     scenariosController.getDiagramForScenario
   );
