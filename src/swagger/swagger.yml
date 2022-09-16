@@ -34,8 +34,9 @@ paths:
       tags:
       - Workflow / Scenarios
       summary: Get Scenarios By Workflow ID
-      description: >
-        Get all possible scenarios for a specific Workflow ID
+      description: 
+        Get all possible scenarios for a specific Workflow ID (Search by workflow_id
+        on test server database and on flowbuild server database)
       parameters:
         - in: path
           name: id
@@ -123,7 +124,9 @@ paths:
       - Workflow / Scenarios
       summary: Get Diagram For Scenario
       description: 
-        Get diagram for a specific scenario of a workflow id
+        Get diagram for a specific scenario of a workflow id (Search by workflow_id
+        on test server database and on flowbuild server database AND search the full
+        blueprint on flowbuild server database)
       parameters:
         - in: path
           name: workflow_id
@@ -177,7 +180,8 @@ paths:
       - Workflow / Scenarios
       summary: Update Scenario Name
       description: 
-        Update a specific scenario name of a specific workflow id
+        Update a specific scenario name of a specific workflow id (Search by workflow_id
+        on test server database)
       parameters:
         - in: path
           name: workflow_id
@@ -289,7 +293,7 @@ paths:
       - Scenarios
       summary: Save Scenarios By Blueprint
       description: 
-        Save scenarios for a given blueprint
+        Save scenarios for a given blueprint (Save on test server database)
       requestBody:
         required: true
         content:
@@ -570,7 +574,7 @@ paths:
       - Workflow / Scenarios
       summary: Save Scenarios By Workflow ID
       description: 
-        Save scenarios for a specific workflow id
+        Save scenarios for a specific workflow id (Save on test server database)
       parameters:
         - in: path
           name: workflow_id
