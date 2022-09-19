@@ -13,28 +13,6 @@ const getScenariosByWorkflowId = async (workflow_id) => {
   return dataDb;
 }
 
-const getScenariosByWorkflowIdFb = async (workflow_id, ignoreLoop = false) => {
-  logger.debug('getScenariosByWorkflowIdFb service called');
-
-  const token = await getToken();
-
-  const blueprint = await flowbuildApi.get(`/workflows/${workflow_id}`, {
-    headers: { 'Authorization': `Bearer ${token}` }
-  })
-    .then((response) => response.data)
-    .catch((error) => {
-      logger.error(error.message);
-      return;
-    });
-
-  if (!blueprint) {
-    return;
-  } else {
-    const dataFb = getAllPaths(blueprint, ignoreLoop);
-    return dataFb;
-  }
-}
-
 const saveScenariosForBlueprint = async (blueprint) => {
   logger.debug('saveScenariosForBlueprint service called');
 
@@ -97,7 +75,6 @@ const updateScenarioName = async (workflow_id, data) => {
 
 module.exports = {
   getScenariosByWorkflowId,
-  getScenariosByWorkflowIdFb,
   saveScenariosForBlueprint,
   saveScenariosForWorkflowId,
   updateScenarioName
