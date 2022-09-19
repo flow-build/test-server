@@ -5,8 +5,8 @@ const { getAllPaths } = require('@flowbuild/test-core');
 const { flowbuildApi, getToken } = require('../utils/api');
 const { buildXmlDiagram } = require('@flowbuild/nodejs-diagram-builder');
 
-const getScenariosByWorkflowIdDb = async (workflow_id) => {
-  logger.debug('getScenariosByWorkflowIdDb service called');
+const getScenariosByWorkflowId = async (workflow_id) => {
+  logger.debug('getScenariosByWorkflowId service called');
 
   const dataDb = await db('scenarios').where('workflow_id', workflow_id).first();
 
@@ -84,39 +84,6 @@ const saveScenariosForWorkflowId = async (workflow_id) => {
   }
 }
 
-const getDiagramForScenario = async (workflow_id, scenario) => {
-  const token = await getToken();
-
-  const blueprint = await flowbuildApi.get(`/workflows/${workflow_id}`, {
-    headers: { 'Authorization': `Bearer ${token}` }
-  })
-    .then((response) => response.data)
-    .catch((error) => {
-      logger.error(error.message);
-      return;
-    });
-    
-  let repeatedNodes = [];
-  blueprint.blueprint_spec.nodes = blueprint.blueprint_spec.nodes
-    .filter((node) => scenario.nodes.includes(node.id))
-    .map((node) => {
-      if (node.type.toLowerCase() === 'flow') {
-        const nextNodes = Object.values(node.next);
-        nextNodes.forEach((next) => {
-          if (scenario.nodes.includes(next) && !repeatedNodes.includes(next)) {
-            node.next = {
-              next: next
-            };
-          }
-        })
-      }
-      repeatedNodes.push(node.id);
-      return node;
-    })
-  const diagram = await buildXmlDiagram(blueprint);
-  return diagram;
-}
-
 const updateScenarioName = async (workflow_id, data) => {
   logger.debug('updateScenarioName service called');
 
@@ -129,10 +96,9 @@ const updateScenarioName = async (workflow_id, data) => {
 }
 
 module.exports = {
-  getScenariosByWorkflowIdDb,
+  getScenariosByWorkflowId,
   getScenariosByWorkflowIdFb,
   saveScenariosForBlueprint,
   saveScenariosForWorkflowId,
-  getDiagramForScenario,
   updateScenarioName
 }

@@ -7,28 +7,18 @@ const getScenariosByWorkflowId = async (ctx, next) => {
   const workflow_id = ctx.params.id;
 
   try {
-    const dataDb = await scenariosServices.getScenariosByWorkflowIdDb(workflow_id);
+    const data = await scenariosServices.getScenariosByWorkflowId(workflow_id);
 
-    if (!dataDb) {
-      const dataFb = await scenariosServices.getScenariosByWorkflowIdFb(workflow_id);
-
-      if (!dataFb) {
-        ctx.status = 404
-        ctx.body = {
-          message: 'Workflow not found'
-        }
-      } else {
-        ctx.status = 200;
-        ctx.body = {
-          totalScenarios: dataFb.totalScenarios,
-          scenarios: dataFb.scenarios
-        }
+    if (!data) {
+      ctx.status = 404
+      ctx.body = {
+        message: 'Workflow not found'
       }
     } else {
       ctx.status = 200;
       ctx.body = {
-        totalScenarios: dataDb.total_scenarios,
-        scenarios: dataDb.scenarios
+        totalScenarios: data.total_scenarios,
+        scenarios: data.scenarios
       }
     }
   } catch (err) {
@@ -44,7 +34,7 @@ const saveScenariosForBlueprint = async (ctx, next) => {
   const blueprint = ctx.request.body;
 
   try {
-    const data = await scenariosServices.getScenariosByWorkflowIdDb(blueprint.workflow_id);
+    const data = await scenariosServices.getScenariosByWorkflowId(blueprint.workflow_id);
 
     if (!data) {
       const dataSaved = await scenariosServices.saveScenariosForBlueprint(blueprint);
@@ -73,7 +63,7 @@ const saveScenariosForWorkflowId = async (ctx, next) => {
   const { workflow_id } = ctx.params;
 
   try {
-    const data = await scenariosServices.getScenariosByWorkflowIdDb(workflow_id);
+    const data = await scenariosServices.getScenariosByWorkflowId(workflow_id);
 
     if (!data) {
       const dataSaved = await scenariosServices.saveScenariosForWorkflowId(workflow_id);
@@ -103,41 +93,6 @@ const saveScenariosForWorkflowId = async (ctx, next) => {
   return next();
 }
 
-const getDiagramForScenario = async (ctx, next) => {
-  logger.debug('getDiagramForScenario controller called');
-
-  const { workflow_id, scenario_id } = ctx.params;
-
-  try {
-    let data = await scenariosServices.getScenariosByWorkflowIdFb(workflow_id, true);
-
-    if (!data) {
-      ctx.status = 404;
-      ctx.body = {
-        message: 'Blueprint not found on server'
-      }
-    } else {
-      const scenario = data.scenarios.find((scenario) => scenario.id == scenario_id);
-
-      if (!scenario) {
-        ctx.status = 404;
-        ctx.body = {
-          message: 'Scenario not found'
-        }
-      } else {
-        const diagram = await scenariosServices.getDiagramForScenario(workflow_id, scenario);
-
-        ctx.status = 200;
-        ctx.body = diagram;
-      }
-    }
-  } catch (err) {
-    throw new Error(err)
-  }
-
-  return next();
-}
-
 const updateScenarioName = async (ctx, next) => {
   logger.debug('updateScenarioName controller called');
 
@@ -145,7 +100,7 @@ const updateScenarioName = async (ctx, next) => {
   const { name } = ctx.request.body;
 
   try {
-    const data = await scenariosServices.getScenariosByWorkflowIdDb(workflow_id);
+    const data = await scenariosServices.getScenariosByWorkflowId(workflow_id);
 
     if (!data) {
       ctx.status = 404;
@@ -183,6 +138,5 @@ module.exports = {
   getScenariosByWorkflowId,
   saveScenariosForBlueprint,
   saveScenariosForWorkflowId,
-  getDiagramForScenario,
   updateScenarioName
 }
