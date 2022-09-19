@@ -1,6 +1,7 @@
 require('dotenv').config();
 const axios = require('axios');
 const jwt = require('jsonwebtoken');
+const { logger } = require('./logger');
 
 const getToken = async () => {
   const existingToken = process.env.TOKEN;

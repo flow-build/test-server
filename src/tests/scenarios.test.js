@@ -4,6 +4,13 @@ const supertest = require('supertest');
 const { startServer } = require('../app');
 const { db } = require('../utils/db');
 const verySimpleBP = require('../../db/seeds/blueprints/verySimpleBP');
+const nock = require('nock');
+
+nock(process.env.FLOWBUILD_URL)
+  .post('/token')
+  .reply(200, {
+    jwtToken: 'genericTestToken'
+  });
 
 let server;
 
@@ -181,4 +188,58 @@ describe('POST /scenarios/blueprint/save', () => {
     expect(response.body.errors[0].field).toEqual("/blueprint_spec");
     expect(response.body.errors[0].message).toEqual("must have required property 'nodes'");
   });
+});
+
+describe('POST /scenarios/workflow/:workflow_id/save', () => {
+  test('should return 201', async () => {
+    nock(process.env.FLOWBUILD_URL)
+      .get('/workflows/9a126b08-f5e2-48a8-b913-d201ac6ca402')
+      .reply(200, verySimpleBP);
+
+    const response = await request.post(`/scenarios/workflow/9a126b08-f5e2-48a8-b913-d201ac6ca402/save`);
+    
+    expect(response.status).toBe(201);
+    expect(response.body.totalScenarios).toBeDefined();
+    expect(response.body.scenarios.length).toBeTruthy();
+  });
+
+  test('should return 404 for workflow not found', async () => {
+    nock(process.env.FLOWBUILD_URL)
+      .get('/workflows/8a126b08-f5e2-48a8-b913-d201ac6ca401')
+      .reply(404, {
+        message: 'Workflow not found'
+      });
+
+    const response = await request.post(`/scenarios/workflow/8a126b08-f5e2-48a8-b913-d201ac6ca401/save`);
+    
+    expect(response.status).toBe(404);
+    expect(response.body.message).toEqual('Workflow not found');
+  });
+
+  test('should return 400 for existing workflow_id', async () => {
+    nock(process.env.FLOWBUILD_URL)
+      .get('/workflows/9a126b08-f5e2-48a8-b913-d201ac6ca402')
+      .reply(400, {
+        message: 'Scenarios already exists for workflow_id: 9a126b08-f5e2-48a8-b913-d201ac6ca402'
+      });
+
+    const response = await request.post(`/scenarios/workflow/9a126b08-f5e2-48a8-b913-d201ac6ca402/save`);
+
+    expect(response.status).toBe(400);
+    expect(response.body.message).toEqual('Scenarios already exists for workflow_id: 9a126b08-f5e2-48a8-b913-d201ac6ca402');
+  });
+
+  test('should return 400 for invalid uuid', async () => {
+    nock(process.env.FLOWBUILD_URL)
+      .get('/workflows/48a8-b913')
+      .reply(400, {
+        message: 'Invalid uuid'
+      });
+
+    const response = await request.post(`/scenarios/workflow/48a8-b913/save`);
+
+    expect(response.status).toBe(400);
+    expect(response.body.message).toEqual('Invalid uuid');
+  });
+
 });
