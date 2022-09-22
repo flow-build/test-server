@@ -116,7 +116,7 @@ describe('PATCH /scenarios/:id', () => {
 describe('POST /scenarios/calculate', () => {
   test('should return 201', async () => {
 
-    const response = await request.post('/scenarios/calculate')
+    const response = await request.post('/scenarios/calculate?strategy=persist')
       .send({
         workflow_id: uuid(), 
         blueprint_spec: verySimpleBP.blueprint_spec
@@ -141,7 +141,7 @@ describe('POST /scenarios/calculate', () => {
 
   test('should return 400 for existing workflow_id', async () => {
 
-    const response = await request.post('/scenarios/calculate')
+    const response = await request.post('/scenarios/calculate?strategy=persist')
     .send({
       workflow_id: '8a126b08-f5e2-48a8-b913-d201ac6ca409', 
       blueprint_spec: verySimpleBP.blueprint_spec
