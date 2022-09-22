@@ -3,79 +3,88 @@ const { logger } = require('../utils/logger');
 const { v4: uuid } = require('uuid');
 const { getAllPaths } = require('@flowbuild/test-core');
 const { flowbuildApi, getToken } = require('../utils/api');
-const { buildXmlDiagram } = require('@flowbuild/nodejs-diagram-builder');
 
 const getScenariosByWorkflowId = async (workflow_id) => {
   logger.debug('getScenariosByWorkflowId service called');
 
-  const dataDb = await db('scenarios').where('workflow_id', workflow_id).first();
+  const data = await db('scenarios').where('workflow_id', workflow_id);
 
-  return dataDb;
+  return data;
 }
 
-const saveScenariosForBlueprint = async (blueprint) => {
+const getScenarioById = async (scenario_id) => {
+  logger.debug('getScenarioById service called');
+
+  const data = await db('scenarios').where('id', scenario_id).first();
+
+  return data;
+}
+
+const saveScenarios = async (workflow_id, scenarios) => {
   logger.debug('saveScenariosForBlueprint service called');
+  let data = [];
 
-  const data = getAllPaths(blueprint);
-
-  const [dataSaved] = await db('scenarios').insert(
-    {
-      id: uuid(),
-      workflow_id: blueprint.workflow_id,
-      total_scenarios: data.totalScenarios,
-      scenarios: JSON.stringify(data.scenarios)
-    }
-  ).returning('*');
-
-  return dataSaved;
-}
-
-const saveScenariosForWorkflowId = async (workflow_id) => {
-  logger.debug('saveScenariosForWorkflowId service called');
-
-  const token = await getToken();
-
-  const blueprint = await flowbuildApi.get(`/workflows/${workflow_id}`, {
-    headers: { 'Authorization': `Bearer ${token}` }
-  })
-    .then((response) => response.data)
-    .catch((error) => {
-      logger.error(error.message);
-      return;
-    });
-
-  if (!blueprint) {
-    return;
-  } else {
-    const data = getAllPaths(blueprint);
-
-    const [dataSaved] = await db('scenarios').insert(
+  for (const scenario of scenarios) {
+    const [scenarioSaved] = await db('scenarios').insert(
       {
         id: uuid(),
         workflow_id: workflow_id,
-        total_scenarios: data.totalScenarios,
-        scenarios: JSON.stringify(data.scenarios)
+        name: scenario.name,
+        nodes: scenario.nodes,
+        steps: scenario.steps
       }
     ).returning('*');
+    data.push(scenarioSaved);
+  }
 
-    return dataSaved;
+  return data;
+}
+
+const calculateScenariosForBlueprint = async (blueprint) => {
+  logger.debug('calculateScenariosForBlueprint service called');
+
+  const data = getAllPaths(blueprint);
+
+  return data;
+}
+
+const getWorkflowFromFlowbuild = async (workflow_id) => {
+  logger.debug('getWorkflowFromFlowbuild service called');
+  const token = await getToken();
+  let error = null;
+
+  const blueprint = await flowbuildApi.get(`/workflows/${workflow_id}`, {
+      headers: { 'Authorization': `Bearer ${token}` }
+    })
+    .then((response) => response.data)
+    .catch((err) => {
+      logger.error(err.message);
+      error = err.message;
+      return;
+    });
+  
+  return {
+    blueprint,
+    error
   }
 }
 
-const updateScenarioName = async (workflow_id, data) => {
+const updateScenarioName = async (scenario_id, name) => {
   logger.debug('updateScenarioName service called');
 
   const [dataUpdated] = await db('scenarios')
-    .where('workflow_id', workflow_id)
-    .update({ ...data, scenarios: JSON.stringify(data.scenarios), updated_at: 'now' })
-    .returning('scenarios');
+    .where('id', scenario_id)
+    .update({ name: name, updated_at: 'now' })
+    .returning('*');
 
   return dataUpdated;
 }
 
 module.exports = {
   getScenariosByWorkflowId,
-  saveScenariosForBlueprint,
-  saveScenariosForWorkflowId,
+  getScenarioById,
+  calculateScenariosForBlueprint,
+  getWorkflowFromFlowbuild,
+  saveScenarios,
   updateScenarioName
 }

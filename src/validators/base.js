@@ -38,7 +38,7 @@ const validateBody = (schema) => {
 const validateUUID = async (ctx, next) => {
   logger.debug('validateUUID called');
 
-  const id = ctx.params.id || ctx.params.workflow_id;
+  const id = ctx.params.id;
 
   if (id) {
     const is_valid = validate(id);

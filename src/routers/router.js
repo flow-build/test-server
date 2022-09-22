@@ -25,22 +25,22 @@ module.exports = (opts = {}) => {
     baseValidator.validateUUID,
     scenariosController.getScenariosByWorkflowId
   );
-  workflows.patch(
-    '/:workflow_id/scenarios/:scenario_id',
+  workflows.post('/:id/scenarios/save',
+    baseValidator.validateUUID,
+    scenariosController.saveScenariosForWorkflowId
+  );
+
+  const scenarios = Router();
+  scenarios.prefix('/scenarios');
+  scenarios.patch(
+    '/:id',
     baseValidator.validateUUID,
     validateScenario.validateUpdateScenarioName,
     scenariosController.updateScenarioName
   );
-  
-  const scenarios = Router();
-  scenarios.prefix('/scenarios');
-  scenarios.post('/workflow/:workflow_id/save',
-    baseValidator.validateUUID,
-    scenariosController.saveScenariosForWorkflowId
-  );
-  scenarios.post('/blueprint/save',
-    validateScenario.validateSaveScenariosForBlueprint,
-    scenariosController.saveScenariosForBlueprint
+  scenarios.post('/calculate',
+    validateScenario.validateCalculateScenariosForBlueprint,
+    scenariosController.calculateScenariosForBlueprint
   );
   
   router.use(workflows.routes());

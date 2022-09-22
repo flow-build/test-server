@@ -9,9 +9,9 @@ const validateUpdateScenarioName = validateBody({
   additionalProperties: false
 });
 
-const validateSaveScenariosForBlueprint = validateBody({
+const validateCalculateScenariosForBlueprint = validateBody({
   type: 'object',
-  required: [ 'workflow_id', 'blueprint_spec'],
+  required: [ 'blueprint_spec'],
   properties: {
     workflow_id: { type: 'string', format: 'uuid' },
     created_at: { type: 'string', format: 'date-time' },
@@ -40,6 +40,6 @@ const validateSaveScenariosForBlueprint = validateBody({
 })
 
 module.exports = {
-  validateSaveScenariosForBlueprint,
+  validateCalculateScenariosForBlueprint,
   validateUpdateScenarioName
 }
