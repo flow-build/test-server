@@ -232,7 +232,14 @@ paths:
       summary: Calculate Scenarios By Blueprint (Optionally saves)
       description: 
         Calculate scenarios for a given blueprint (Saves on test server database if 
-        a workflow_id is given)
+        strategy=persist and a workflow_id is given)
+      parameters:
+        - in: query
+          name: strategy
+          description: Strategy of request
+          schema:
+            type: string
+            enum: ['persist']
       requestBody:
         required: true
         content:

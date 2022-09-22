@@ -29,22 +29,30 @@ const calculateScenariosForBlueprint = async (ctx, next) => {
   logger.debug('calculateScenariosForBlueprint controller called');
 
   const blueprint = ctx.request.body;
+  const { strategy } = ctx.query;
 
   try {
     const paths = await scenariosServices.calculateScenariosForBlueprint(blueprint);
-    
-    if (blueprint.workflow_id) {
-      const data = await scenariosServices.getScenariosByWorkflowId(blueprint.workflow_id);
-      
-      if (data.length === 0) {
-        const scenariosSaved = await scenariosServices.saveScenarios(blueprint.workflow_id, paths.scenarios);
-  
-        ctx.status = 201;
-        ctx.body = scenariosSaved;
-      } else {
+
+    if (strategy === 'persist') {
+      if (!blueprint.workflow_id) {
         ctx.status = 400;
         ctx.body = {
-          message: `Scenarios already exists for workflow_id: ${blueprint.workflow_id}`
+          message: "Must provide 'workflow_id' to persist scenarios"
+        }
+      } else {
+        const data = await scenariosServices.getScenariosByWorkflowId(blueprint.workflow_id);
+      
+        if (data.length === 0) {
+          const scenariosSaved = await scenariosServices.saveScenarios(blueprint.workflow_id, paths.scenarios);
+    
+          ctx.status = 201;
+          ctx.body = scenariosSaved;
+        } else {
+          ctx.status = 400;
+          ctx.body = {
+            message: `Scenarios already exists for workflow_id: ${blueprint.workflow_id}`
+          }
         }
       }
     } else {
