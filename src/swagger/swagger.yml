@@ -119,6 +119,51 @@ paths:
                 }
         '500':
           description: Internal Server Error
+    delete:
+      tags:
+      - Workflows / Scenarios
+      summary: Delete All Scenarios By Workflow ID
+      description: 
+        Delete all scenarios for a specific Workflow ID
+      parameters:
+        - in: path
+          name: id
+          description: Workflow id
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '204':
+          description: No Content
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+              example:
+                {
+                  "message": "Invalid uuid"
+                }
+        '404':
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+              example:
+                {
+                  "message": "Workflow not found"
+                }
+        '500':
+          description: Internal Server Error
   /scenarios/{id}:
     patch:
       tags:

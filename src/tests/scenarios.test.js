@@ -232,3 +232,28 @@ describe('POST /workflows/:id/scenarios/save', () => {
     expect(response.body.message).toEqual('Flowbuild server unavailable');
   });
 });
+
+describe('DELETE /workflows/:id/scenarios', () => {
+  test('should return 204', async () => {
+
+    const response = await request.del('/workflows/8a126b08-f5e2-48a8-b913-d201ac6ca409/scenarios')
+
+    expect(response.status).toBe(204);
+  });
+
+  test('should return 400 for invalid uuid', async () => {
+
+    const response = await request.del('/workflows/8a126b08/scenarios')
+
+    expect(response.status).toBe(400);
+    expect(response.body.message).toEqual('Invalid uuid');
+  });
+
+  test('should return 404 for workflow not found', async () => {
+
+    const response = await request.del('/workflows/7a126b08-f5e2-48a8-b913-d201ac6ca408/scenarios')
+
+    expect(response.status).toBe(404);
+    expect(response.body.message).toEqual('Workflow not found');
+  });
+});

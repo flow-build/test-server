@@ -29,6 +29,10 @@ module.exports = (opts = {}) => {
     baseValidator.validateUUID,
     scenariosController.saveScenariosForWorkflowId
   );
+  workflows.del('/:id/scenarios',
+    baseValidator.validateUUID,
+    scenariosController.deleteScenariosByWorkflowId
+  );
 
   const scenarios = Router();
   scenarios.prefix('/scenarios');

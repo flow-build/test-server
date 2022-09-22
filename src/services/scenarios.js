@@ -80,11 +80,20 @@ const updateScenarioName = async (scenario_id, name) => {
   return dataUpdated;
 }
 
+const deleteScenariosByWorkflowId = async (workflow_id) => {
+  logger.debug('deleteScenariosByWorkflowId service called');
+
+  const dataDeleted = await db('scenarios').where('workflow_id', workflow_id).del();
+
+  return dataDeleted;
+}
+
 module.exports = {
   getScenariosByWorkflowId,
   getScenarioById,
   calculateScenariosForBlueprint,
   getWorkflowFromFlowbuild,
   saveScenarios,
-  updateScenarioName
+  updateScenarioName,
+  deleteScenariosByWorkflowId
 }

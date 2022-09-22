@@ -134,9 +134,33 @@ const updateScenarioName = async (ctx, next) => {
   return next();
 }
 
+const deleteScenariosByWorkflowId = async (ctx, next) => {
+  logger.debug('deleteScenariosByWorkflowId controller called');
+
+  const workflow_id = ctx.params.id;
+
+  try {
+    const scenariosDeleted = await scenariosServices.deleteScenariosByWorkflowId(workflow_id);
+
+    if (scenariosDeleted) {
+      ctx.status = 204;
+    } else {
+      ctx.status = 404;
+      ctx.body = {
+        message: 'Workflow not found'
+      }
+    } 
+  } catch (err) {
+    throw new Error(err);
+  }
+
+  return next();
+}
+
 module.exports = {
   getScenariosByWorkflowId,
   calculateScenariosForBlueprint,
   saveScenariosForWorkflowId,
-  updateScenarioName
+  updateScenarioName,
+  deleteScenariosByWorkflowId
 }
