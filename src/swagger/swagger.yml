@@ -32,11 +32,10 @@ paths:
   /workflows/{id}/scenarios:
     get:
       tags:
-      - Workflow / Scenarios
-      summary: Get Scenarios By Workflow ID
+      - Workflows / Scenarios
+      summary: Get All Scenarios By Workflow ID
       description: 
-        Get all possible scenarios for a specific Workflow ID (Search by workflow_id
-        on test server database and on flowbuild server database)
+        Get all possible scenarios for a specific Workflow ID
       parameters:
         - in: path
           name: id
@@ -51,45 +50,47 @@ paths:
           content:
             application/json:
               schema:
-                type: object
-                properties:
-                  totalScenarios:
-                    type: string
-                  scenarios:
-                    type: array
-                    items:
-                      type: object
-                      properties:
-                        id: 
-                          type: integer
-                        name: 
-                          type: string
-                        steps:
-                          type: integer
-                        nodes:
-                          type: array
-                          items:
-                            type: string
+                type: array
+                items:
+                  type: object
+                  properties:
+                    id:
+                      type: string
+                      format: uuid
+                    workflow_id:
+                      type: string
+                      format: uuid
+                    name:
+                      type: string
+                    nodes:
+                      type: array
+                      items:
+                        type: string
+                    steps:
+                      type: integer
+                    created_at:
+                      type: string
+                      format: date-time
               example:
-                {
-                  "totalScenarios": "1",
-                  "scenarios": [
-                    {
-                      "id": 0,
-                      "name": "START->END",
-                      "nodes": [
-                        "START",
-                        "ORDER-PIZZA",
-                        "TAKE-ORDER",
-                        "PREPARE-PIZZA",
-                        "BRING-PIZZA",
-                        "RECEIVE-PIZZA",
-                        "END"
-                      ],
-                      "steps": 7
-                    }
-                  ]
-                }
+                [
+                  {
+                    "id": "218f5b5a-6024-4ec4-a5da-639d516bad2d",
+                    "workflow_id": "8a126b08-f5e2-48a8-b913-d201ac6ca409",
+                    "name": "START->END",
+                    "nodes": [
+                      "START",
+                      "ORDER-PIZZA",
+                      "TAKE-ORDER",
+                      "PREPARE-PIZZA",
+                      "BRING-PIZZA",
+                      "RECEIVE-PIZZA",
+                      "END"
+                    ],
+                    "steps": 7,
+                    "created_at": "2022-09-22T00:24:31.921Z",
+                    "updated_at": "2022-09-22T00:24:31.921Z"
+                  }
+                ]
         '400':
           description: Bad Request
           content:
@@ -118,28 +119,21 @@ paths:
                 }
         '500':
           description: Internal Server Error
-  /workflows/{workflow_id}/scenarios/{scenario_id}:
+  /scenarios/{id}:
     patch:
       tags:
-      - Workflow / Scenarios
+      -  Scenarios
       summary: Update Scenario Name
       description: 
-        Update a specific scenario name of a specific workflow id (Search by workflow_id
-        on test server database)
+        Update a specific scenario name by the scenario id
       parameters:
         - in: path
-          name: workflow_id
-          description: Workflow id
-          required: true
-          schema:
-            type: string
-            format: uuid
-        - in: path
-          name: scenario_id
+          name: id
           description: Scenario id
           required: true
           schema:
             type: string
+            format: uuid
       requestBody:
         required: true
         content:
@@ -162,40 +156,40 @@ paths:
               schema:
                 type: object
                 properties:
-                  scenarios:
+                  id:
+                    type: string
+                    format: uuid
+                  workflow_id:
+                    type: string
+                    format: uuid
+                  name:
+                    type: string
+                  nodes:
                     type: array
                     items:
-                      type: object
-                      properties:
-                        id: 
-                          type: integer
-                        name: 
-                          type: string
-                        steps:
-                          type: integer
-                        nodes:
-                          type: array
-                          items:
-                            type: string
+                      type: string
+                  steps:
+                    type: integer
+                  created_at:
+                    type: string
+                    format: date-time
               example:
                 {
-                  "totalScenarios": "1",
-                  "scenarios": [
-                    {
-                      "id": 0,
-                      "name": Happy Path",
-                      "nodes": [
-                        "START",
-                        "ORDER-PIZZA",
-                        "TAKE-ORDER",
-                        "PREPARE-PIZZA",
-                        "BRING-PIZZA",
-                        "RECEIVE-PIZZA",
-                        "END"
-                      ],
-                      "steps": 7
-                    }
-                  ]
+                  "id": "218f5b5a-6024-4ec4-a5da-639d516bad2d",
+                  "workflow_id": "8a126b08-f5e2-48a8-b913-d201ac6ca409",
+                  "name": "Happy Path",
+                  "nodes": [
+                    "START",
+                    "ORDER-PIZZA",
+                    "TAKE-ORDER",
+                    "PREPARE-PIZZA",
+                    "BRING-PIZZA",
+                    "RECEIVE-PIZZA",
+                    "END"
+                  ],
+                  "steps": 7,
+                  "created_at": "2022-09-22T00:24:31.921Z",
+                  "updated_at": "2022-09-22T00:30:57.426Z"
                 }
         '400':
           description: Bad Request
@@ -231,20 +225,21 @@ paths:
                 }
         '500':
           description: Internal Server Error
-  /scenarios/blueprint/save:
+  /scenarios/calculate:
     post:
       tags:
       - Scenarios
-      summary: Save Scenarios By Blueprint
+      summary: Calculate Scenarios By Blueprint (Optionally saves)
       description: 
-        Save scenarios for a given blueprint (Save on test server database)
+        Calculate scenarios for a given blueprint (Saves on test server database if 
+        a workflow_id is given)
       requestBody:
         required: true
         content:
           application/json:
             schema:
               type: object
-              required: [workflow_id, blueprint_spec]
+              required: [blueprint_spec]
               properties:
                 workflow_id:
                   type: string
@@ -292,10 +287,9 @@ paths:
               additionalProperties: false
             example:
               {
-                "workflow_id": "d373bef0-1152-11ea-9576-9584815cab84",
                 "created_at": "2022-09-09T17:45:07.366Z",
                 "name": "test_workflow",
-                "description": "Workflow para rodar testes sobre a aplicação",
+                "description": "Workflow to run tests",
                 "version": 1,
                 "hash": null,
                 "blueprint_spec": {
@@ -452,42 +446,89 @@ paths:
           content:
             application/json:
               schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    id:
+                      type: string
+                      format: uuid
+                    workflow_id:
+                      type: string
+                      format: uuid
+                    name:
+                      type: string
+                    nodes:
+                      type: array
+                      items:
+                        type: string
+                    steps:
+                      type: integer
+                    created_at:
+                      type: string
+                      format: date-time
+              example:
+                [
+                  {
+                    "id": "42d02308-6bab-40cd-87b4-aa601d5cc828",
+                    "workflow_id": "8fc66458-1137-4c1a-9aef-5dcdca9a19f6",
+                    "name": "1->8",
+                    "nodes": [
+                      "1",
+                      "2",
+                      "3",
+                      "4",
+                      "5",
+                      "6",
+                      "7",
+                      "8"
+                    ],
+                    "steps": 8,
+                    "created_at": "2022-09-22T00:35:12.277Z",
+                    "updated_at": "2022-09-22T00:35:12.277Z"
+                  }
+                ]
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
                 type: object
-                properties:
-                  totalScenarios:
-                    type: string
-                  scenarios:
-                    type: array
-                    items:
-                      type: object
-                      properties:
-                        id: 
-                          type: integer
-                        name: 
+                totalScenarios:
+                    type: integer
+                scenarios:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      id: 
+                        type: integer
+                      name: 
+                        type: string
+                      steps:
+                        type: integer
+                      nodes:
+                        type: array
+                        items:
                           type: string
-                        steps:
-                          type: integer
-                        nodes:
-                          type: array
-                          items:
-                            type: string
               example:
                 {
-                  "totalScenarios": "1",
+                  "totalScenarios": 1,
                   "scenarios": [
                     {
                       "id": 0,
-                      "name": Happy Path",
+                      "name": "1->8",
+                      "steps": 8,
                       "nodes": [
-                        "START",
-                        "ORDER-PIZZA",
-                        "TAKE-ORDER",
-                        "PREPARE-PIZZA",
-                        "BRING-PIZZA",
-                        "RECEIVE-PIZZA",
-                        "END"
-                      ],
-                      "steps": 7
+                        "1",
+                        "2",
+                        "3",
+                        "4",
+                        "5",
+                        "6",
+                        "7",
+                        "8"
+                        ]
                     }
                   ]
                 }
@@ -506,22 +547,22 @@ paths:
                   "errors": [
                     {
                       "field": "",
-                      "message": "must have required property 'workflow_id'"
+                      "message": "must have required property 'blueprint_spec'"
                     }
                   ]
                 }
         '500':
           description: Internal Server Error
-  /scenarios/workflow/{workflow_id}/save:
+  /workflows/{id}/scenarios/save:
     post:
       tags:
-      - Workflow / Scenarios
+      - Workflows / Scenarios
       summary: Save Scenarios By Workflow ID
       description: 
-        Save scenarios for a specific workflow id (Save on test server database)
+        Save scenarios for a specific workflow id from flowbuild server
       parameters:
         - in: path
-          name: workflow_id
+          name: id
           description: Workflow id
           required: true
           schema:
@@ -533,45 +574,48 @@ paths:
           content:
             application/json:
               schema:
-                type: object
-                properties:
-                  totalScenarios:
-                    type: string
-                  scenarios:
-                    type: array
-                    items:
-                      type: object
-                      properties:
-                        id: 
-                          type: integer
-                        name: 
-                          type: string
-                        steps:
-                          type: integer
-                        nodes:
-                          type: array
-                          items:
-                            type: string
+                type: array
+                items:
+                  type: object
+                  properties:
+                    id:
+                      type: string
+                      format: uuid
+                    workflow_id:
+                      type: string
+                      format: uuid
+                    name:
+                      type: string
+                    nodes:
+                      type: array
+                      items:
+                        type: string
+                    steps:
+                      type: integer
+                    created_at:
+                      type: string
+                      format: date-time
               example:
-                {
-                  "totalScenarios": "1",
-                  "scenarios": [
-                    {
-                      "id": 0,
-                      "name": Happy Path",
-                      "nodes": [
-                        "START",
-                        "ORDER-PIZZA",
-                        "TAKE-ORDER",
-                        "PREPARE-PIZZA",
-                        "BRING-PIZZA",
-                        "RECEIVE-PIZZA",
-                        "END"
-                      ],
-                      "steps": 7
-                    }
-                  ]
-                }
+                [
+                  {
+                    "id": "4102e803-0638-4d9d-95ed-360ea348d668",
+                    "workflow_id": "d373bef0-1152-11ea-9576-9584815cab84",
+                    "name": "1->8",
+                    "nodes": [
+                      "1",
+                      "2",
+                      "3",
+                      "4",
+                      "5",
+                      "6",
+                      "7",
+                      "8"
+                    ],
+                    "steps": 8,
+                    "created_at": "2022-09-22T00:40:38.306Z",
+                    "updated_at": "2022-09-22T00:40:38.306Z"
+                  }
+                ]
         '400':
           description: Bad Request
           content:
@@ -597,6 +641,19 @@ paths:
               example:
                 {
                   "message": "Workflow not found"
+                }
+        '502':
+          description: Bad Gateway
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+              example:
+                {
+                  "message": "Flowbuild server unavailable"
                 }
         '500':
           description: Internal Server Error
