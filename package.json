@@ -11,7 +11,8 @@
     "migrations": "knex --env ${KNEX_ENV} --knexfile knexfile.js migrate:latest",
     "seeds": "knex --env ${KNEX_ENV} --knexfile knexfile.js seed:run",
     "migrations:local": "knex --env test --knexfile knexfile.js migrate:latest",
-    "seeds:local": "knex --env test --knexfile knexfile.js seed:run"
+    "seeds:local": "knex --env test --knexfile knexfile.js seed:run",
+    "release": "semantic-release"
   },
   "repository": {
     "type": "git",
