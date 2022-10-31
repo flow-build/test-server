@@ -44,7 +44,7 @@ const calculateScenariosForBlueprint = async (ctx, next) => {
         const data = await scenariosServices.getScenariosByWorkflowId(blueprint.workflow_id);
       
         if (data.length === 0) {
-          const scenariosSaved = await scenariosServices.saveScenarios(blueprint.workflow_id, paths.scenarios);
+          const scenariosSaved = await scenariosServices.saveScenarios(blueprint.workflow_id, paths.scenarios, blueprint?.name);
     
           ctx.status = 201;
           ctx.body = scenariosSaved;
@@ -89,7 +89,7 @@ const saveScenariosForWorkflowId = async (ctx, next) => {
         }
       } else {
         const { scenarios } = await scenariosServices.calculateScenariosForBlueprint(blueprint);
-        const scenariosSaved = await scenariosServices.saveScenarios(id, scenarios);
+        const scenariosSaved = await scenariosServices.saveScenarios(id, scenarios, blueprint?.name);
 
         ctx.status = 201;
         ctx.body = scenariosSaved;

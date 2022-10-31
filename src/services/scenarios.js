@@ -20,11 +20,12 @@ const getScenarioById = async (scenario_id) => {
   return data;
 }
 
-const saveScenarios = async (workflow_id, scenarios) => {
+const saveScenarios = async (workflow_id, scenarios, workflow_name) => {
   logger.debug('saveScenariosForBlueprint service called');
   let data = [];
 
   for (const scenario of scenarios) {
+    scenario.name = workflow_name ? `${workflow_name}_${scenario.id}` : scenario.name.replace('>', '');
     const [scenarioSaved] = await db('scenarios').insert(
       {
         id: uuid(),
