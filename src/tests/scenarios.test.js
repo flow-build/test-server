@@ -124,7 +124,7 @@ describe('POST /scenarios/calculate', () => {
     
     expect(response.status).toBe(201);
     expect(response.body.length).toBeTruthy();
-    expect(response.body[0].name).toEqual('START->END');
+    expect(response.body[0].name).toEqual('START-END');
   });
 
   test('should return 200', async () => {
@@ -188,6 +188,7 @@ describe('POST /workflows/:id/scenarios/save', () => {
     expect(response.status).toBe(201);
     expect(response.body.length).toBeTruthy();
     expect(response.body[0].id).toBeDefined();
+    expect(response.body[0].name).toEqual('Very Simple BP_1');
     expect(validate(response.body[0].id)).toBeTruthy();
   });
 

@@ -76,7 +76,7 @@ paths:
                   {
                     "id": "218f5b5a-6024-4ec4-a5da-639d516bad2d",
                     "workflow_id": "8a126b08-f5e2-48a8-b913-d201ac6ca409",
-                    "name": "START->END",
+                    "name": "START-END",
                     "nodes": [
                       "START",
                       "ORDER-PIZZA",
@@ -524,7 +524,7 @@ paths:
                   {
                     "id": "42d02308-6bab-40cd-87b4-aa601d5cc828",
                     "workflow_id": "8fc66458-1137-4c1a-9aef-5dcdca9a19f6",
-                    "name": "1->8",
+                    "name": "test_workflow_1",
                     "nodes": [
                       "1",
                       "2",
@@ -652,7 +652,7 @@ paths:
                   {
                     "id": "4102e803-0638-4d9d-95ed-360ea348d668",
                     "workflow_id": "d373bef0-1152-11ea-9576-9584815cab84",
-                    "name": "1->8",
+                    "name": "test_workflow_1",
                     "nodes": [
                       "1",
                       "2",
