@@ -124,7 +124,7 @@ describe('POST /scenarios/calculate', () => {
     
     expect(response.status).toBe(201);
     expect(response.body.length).toBeTruthy();
-    expect(response.body[0].name).toEqual('START->END');
+    expect(response.body[0].name).toEqual('START-END');
   });
 
   test('should return 200', async () => {
