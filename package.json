@@ -12,6 +12,7 @@
     "seeds": "knex --env ${KNEX_ENV} --knexfile knexfile.js seed:run",
     "migrations:local": "knex --env test --knexfile knexfile.js migrate:latest",
     "seeds:local": "knex --env test --knexfile knexfile.js seed:run",
+    "get-version": "echo $npm_package_version",
     "release": "semantic-release"
   },
   "repository": {
