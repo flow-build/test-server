@@ -1,7 +1,8 @@
 exports.up = function (knex) {
-  return knex.schema.createTable("scenarios", (table) => {
+  return knex.schema.createTable("paths", (table) => {
     table.uuid("id").primary();
     table.uuid("workflow_id").notNullable();
+    table.string("workflow_name", 255).notNullable();
     table.string("name", 255).notNullable();
     table.specificType("nodes", "text ARRAY").notNullable();
     table.integer("steps").notNullable();
@@ -10,5 +11,5 @@ exports.up = function (knex) {
 };
 
 exports.down = function (knex) {
-  return knex.schema.dropTable("scenarios");
+  return knex.schema.dropTable("paths");
 };
