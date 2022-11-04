@@ -3,9 +3,9 @@ const bodyParser = require('koa-bodyparser');
 const cors = require('koa2-cors');
 const fs = require('fs');
 const baseValidator = require('../validators/base');
-const validateScenario = require('../validators/scenarios');
+const validatePath = require('../validators/paths');
 const healthController = require('../controllers/healthCheck');
-const scenariosController = require('../controllers/scenarios');
+const pathsController = require('../controllers/paths');
 
 module.exports = (opts = {}) => {
   const router = new Router();
@@ -21,34 +21,34 @@ module.exports = (opts = {}) => {
 
   const workflows = Router();
   workflows.prefix('/workflows');
-  workflows.get('/:id/scenarios',
+  workflows.get('/:id/paths',
     baseValidator.validateUUID,
-    scenariosController.getScenariosByWorkflowId
+    pathsController.getPathsByWorkflowId
   );
-  workflows.post('/:id/scenarios/save',
+  workflows.post('/:id/paths/save',
     baseValidator.validateUUID,
-    scenariosController.saveScenariosForWorkflowId
+    pathsController.savePathsForWorkflowId
   );
-  workflows.del('/:id/scenarios',
+  workflows.del('/:id/paths',
     baseValidator.validateUUID,
-    scenariosController.deleteScenariosByWorkflowId
+    pathsController.deletePathsByWorkflowId
   );
 
-  const scenarios = Router();
-  scenarios.prefix('/scenarios');
-  scenarios.patch(
+  const paths = Router();
+  paths.prefix('/paths');
+  paths.patch(
     '/:id',
     baseValidator.validateUUID,
-    validateScenario.validateUpdateScenarioName,
-    scenariosController.updateScenarioName
+    validatePath.validateUpdatePathName,
+    pathsController.updatePathName
   );
-  scenarios.post('/calculate',
-    validateScenario.validateCalculateScenariosForBlueprint,
-    scenariosController.calculateScenariosForBlueprint
+  paths.post('/calculate',
+    validatePath.validateCalculatePathsForBlueprint,
+    pathsController.calculatePathsForBlueprint
   );
   
   router.use(workflows.routes());
-  router.use(scenarios.routes());
+  router.use(paths.routes());
 
   return router; 
 }

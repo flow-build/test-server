@@ -1,6 +1,6 @@
 const { validateBody } = require('./base');
 
-const validateUpdateScenarioName = validateBody({
+const validateUpdatePathName = validateBody({
   type: 'object',
   properties: {
     name: { type: 'string' }
@@ -9,7 +9,7 @@ const validateUpdateScenarioName = validateBody({
   additionalProperties: false
 });
 
-const validateCalculateScenariosForBlueprint = validateBody({
+const validateCalculatePathsForBlueprint = validateBody({
   type: 'object',
   required: [ 'blueprint_spec'],
   properties: {
@@ -40,6 +40,6 @@ const validateCalculateScenariosForBlueprint = validateBody({
 })
 
 module.exports = {
-  validateCalculateScenariosForBlueprint,
-  validateUpdateScenarioName
+  validateCalculatePathsForBlueprint,
+  validateUpdatePathName
 }
