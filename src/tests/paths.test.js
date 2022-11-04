@@ -3,7 +3,7 @@ const { v4: uuid, validate } = require('uuid');
 const supertest = require('supertest');
 const { startServer } = require('../app');
 const { db } = require('../utils/db');
-const verySimpleBP = require('../../db/seeds/blueprints/verySimpleBP');
+const simpleBP = require('../../db/seeds/blueprints/simpleBP');
 const nock = require('nock');
 
 nock(process.env.FLOWBUILD_URL)
@@ -31,19 +31,19 @@ afterAll(async () => {
   await server.close();
 })
 
-describe('GET /workflows/:id/scenarios', () => {
+describe('GET /workflows/:id/paths', () => {
   test('should return 200', async () => {
 
-    const response = await request.get('/workflows/8a126b08-f5e2-48a8-b913-d201ac6ca409/scenarios')
+    const response = await request.get('/workflows/8a126b08-f5e2-48a8-b913-d201ac6ca409/paths')
 
     expect(response.status).toBe(200);
     expect(response.body.length).toBeTruthy();
-    expect(response.body[0].name).toEqual('START->END');
+    expect(response.body[0].name).toEqual('Simple BP_1');
   });
 
   test('should return 400 for invalid uuid', async () => {
 
-    const response = await request.get('/workflows/8a126b08/scenarios')
+    const response = await request.get('/workflows/8a126b08/paths')
 
     expect(response.status).toBe(400);
     expect(response.body.message).toEqual('Invalid uuid');
@@ -51,49 +51,49 @@ describe('GET /workflows/:id/scenarios', () => {
 
   test('should return 404 for workflow not found', async () => {
 
-    const response = await request.get('/workflows/7a126b08-f5e2-48a8-b913-d201ac6ca408/scenarios')
+    const response = await request.get('/workflows/7a126b08-f5e2-48a8-b913-d201ac6ca408/paths')
 
     expect(response.status).toBe(404);
     expect(response.body.message).toEqual('Workflow not found');
   });
 });
 
-describe('PATCH /scenarios/:id', () => {
+describe('PATCH /paths/:id', () => {
   test('should return 200', async () => {
 
     const response = await request
-      .patch('/scenarios/218f5b5a-6024-4ec4-a5da-639d516bad2d')
+      .patch('/paths/38e1d039-39c1-4a48-adb3-736eee1d771e')
       .send({ name: 'Happy Path' });
 
     expect(response.status).toBe(200);
-    expect(response.body.id).toEqual('218f5b5a-6024-4ec4-a5da-639d516bad2d');
+    expect(response.body.id).toEqual('38e1d039-39c1-4a48-adb3-736eee1d771e');
     expect(response.body.name).toEqual('Happy Path');
   });
 
   test('should return 400 for invalid uuid', async () => {
 
     const response = await request
-      .patch('/scenarios/7a126b08')
+      .patch('/paths/7a126b08')
       .send({ name: 'Happy Path' });
 
     expect(response.status).toBe(400);
     expect(response.body.message).toEqual('Invalid uuid');
   });
 
-  test('should return 404 for scenario not found', async () => {
+  test('should return 404 for path not found', async () => {
 
     const response = await request
-      .patch('/scenarios/7a126b08-f5e2-48a8-b913-d201ac6ca408')
+      .patch('/paths/7a126b08-f5e2-48a8-b913-d201ac6ca408')
       .send({ name: 'Happy Path' });
 
     expect(response.status).toBe(404);
-    expect(response.body.message).toEqual('Scenario not found');
+    expect(response.body.message).toEqual('Path not found');
   });
 
   test('should return 400 for invalid request body', async () => {
 
     const response = await request
-      .patch('/scenarios/218f5b5a-6024-4ec4-a5da-639d516bad2d')
+      .patch('/paths/218f5b5a-6024-4ec4-a5da-639d516bad2d')
       .send({});
 
     expect(response.status).toBe(400);
@@ -104,7 +104,7 @@ describe('PATCH /scenarios/:id', () => {
   test('should return 400 for invalid request body', async () => {
 
     const response = await request
-      .patch('/scenarios/218f5b5a-6024-4ec4-a5da-639d516bad2d')
+      .patch('/paths/218f5b5a-6024-4ec4-a5da-639d516bad2d')
       .send({ name: 'New Name', nodes: ['START', 'FINISH'] });
 
     expect(response.status).toBe(400);
@@ -113,47 +113,49 @@ describe('PATCH /scenarios/:id', () => {
   });
 });
 
-describe('POST /scenarios/calculate', () => {
+describe('POST /paths/calculate', () => {
   test('should return 201', async () => {
 
-    const response = await request.post('/scenarios/calculate?strategy=persist')
+    const response = await request.post('/paths/calculate?strategy=persist')
       .send({
-        workflow_id: uuid(), 
-        blueprint_spec: verySimpleBP.blueprint_spec
+        workflow_id: uuid(),
+        name: 'Simple BP',
+        blueprint_spec: simpleBP.blueprint_spec
       });
     
     expect(response.status).toBe(201);
     expect(response.body.length).toBeTruthy();
-    expect(response.body[0].name).toEqual('START-END');
+    expect(response.body[0].name).toEqual('Simple BP_1');
   });
 
   test('should return 200', async () => {
 
-    const response = await request.post('/scenarios/calculate')
+    const response = await request.post('/paths/calculate')
       .send({
-        blueprint_spec: verySimpleBP.blueprint_spec
+        blueprint_spec: simpleBP.blueprint_spec
       });
     
     expect(response.status).toBe(200);
-    expect(response.body.totalScenarios).toBeDefined();
-    expect(response.body.scenarios.length).toBeTruthy();
+    expect(response.body.totalPaths).toBeDefined();
+    expect(response.body.paths.length).toBeTruthy();
   });
 
   test('should return 400 for existing workflow_id', async () => {
 
-    const response = await request.post('/scenarios/calculate?strategy=persist')
+    const response = await request.post('/paths/calculate?strategy=persist')
     .send({
-      workflow_id: '8a126b08-f5e2-48a8-b913-d201ac6ca409', 
-      blueprint_spec: verySimpleBP.blueprint_spec
+      workflow_id: '8a126b08-f5e2-48a8-b913-d201ac6ca409',
+      name: 'Simple BP', 
+      blueprint_spec: simpleBP.blueprint_spec
     });  
 
     expect(response.status).toBe(400);
-    expect(response.body.message).toEqual('Scenarios already exists for workflow_id: 8a126b08-f5e2-48a8-b913-d201ac6ca409');
+    expect(response.body.message).toEqual('Paths already exists for workflow_id: 8a126b08-f5e2-48a8-b913-d201ac6ca409');
   });
 
   test('should return 400 for invalid request body', async () => {
 
-    const response = await request.post('/scenarios/calculate')
+    const response = await request.post('/paths/calculate')
       .send({
         workflow_id: uuid(),
         blueprint_spec: {
@@ -168,7 +170,7 @@ describe('POST /scenarios/calculate', () => {
 
   test('should return 400 for invalid request body', async () => {
 
-    const response = await request.post('/scenarios/calculate')
+    const response = await request.post('/paths/calculate')
       .send({});
 
     expect(response.status).toBe(400);
@@ -177,18 +179,18 @@ describe('POST /scenarios/calculate', () => {
   });
 });
 
-describe('POST /workflows/:id/scenarios/save', () => {
+describe('POST /workflows/:id/paths/save', () => {
   test('should return 201', async () => {
     nock(process.env.FLOWBUILD_URL)
       .get('/workflows/9a126b08-f5e2-48a8-b913-d201ac6ca402')
-      .reply(200, verySimpleBP);
+      .reply(200, simpleBP);
 
-    const response = await request.post(`/workflows/9a126b08-f5e2-48a8-b913-d201ac6ca402/scenarios/save`);
+    const response = await request.post(`/workflows/9a126b08-f5e2-48a8-b913-d201ac6ca402/paths/save`);
     
     expect(response.status).toBe(201);
     expect(response.body.length).toBeTruthy();
     expect(response.body[0].id).toBeDefined();
-    expect(response.body[0].name).toEqual('Very Simple BP_1');
+    expect(response.body[0].name).toEqual('Simple BP_1');
     expect(validate(response.body[0].id)).toBeTruthy();
   });
 
@@ -197,7 +199,7 @@ describe('POST /workflows/:id/scenarios/save', () => {
       .get('/workflows/8a126b08-f5e2-48a8-b913-d201ac6ca401')
       .reply(204);
 
-    const response = await request.post(`/workflows/8a126b08-f5e2-48a8-b913-d201ac6ca401/scenarios/save`);
+    const response = await request.post(`/workflows/8a126b08-f5e2-48a8-b913-d201ac6ca401/paths/save`);
     
     expect(response.status).toBe(404);
     expect(response.body.message).toEqual('Workflow not found');
@@ -206,17 +208,17 @@ describe('POST /workflows/:id/scenarios/save', () => {
   test('should return 400 for existing workflow_id', async () => {
     nock(process.env.FLOWBUILD_URL)
       .get('/workflows/8a126b08-f5e2-48a8-b913-d201ac6ca409')
-      .reply(200, verySimpleBP);
+      .reply(200, simpleBP);
 
-    const response = await request.post(`/workflows/8a126b08-f5e2-48a8-b913-d201ac6ca409/scenarios/save`);
+    const response = await request.post(`/workflows/8a126b08-f5e2-48a8-b913-d201ac6ca409/paths/save`);
 
     expect(response.status).toBe(400);
-    expect(response.body.message).toEqual('Scenarios already exists for workflow_id: 8a126b08-f5e2-48a8-b913-d201ac6ca409');
+    expect(response.body.message).toEqual('Paths already exists for workflow_id: 8a126b08-f5e2-48a8-b913-d201ac6ca409');
   });
 
   test('should return 400 for invalid uuid', async () => {
 
-    const response = await request.post(`/workflows/48a8-b913/scenarios/save`);
+    const response = await request.post(`/workflows/48a8-b913/paths/save`);
 
     expect(response.status).toBe(400);
     expect(response.body.message).toEqual('Invalid uuid');
@@ -227,24 +229,24 @@ describe('POST /workflows/:id/scenarios/save', () => {
       .get('/workflows/7a126b08-f5e2-48a8-b913-d201ac6ca408')
       .replyWithError(`connect ECONNREFUSED ${process.env.FLOWBUILD_URL}`);
     
-    const response = await request.post(`/workflows/7a126b08-f5e2-48a8-b913-d201ac6ca408/scenarios/save`);
+    const response = await request.post(`/workflows/7a126b08-f5e2-48a8-b913-d201ac6ca408/paths/save`);
 
     expect(response.status).toBe(502);
     expect(response.body.message).toEqual('Flowbuild server unavailable');
   });
 });
 
-describe('DELETE /workflows/:id/scenarios', () => {
+describe('DELETE /workflows/:id/paths', () => {
   test('should return 204', async () => {
 
-    const response = await request.del('/workflows/8a126b08-f5e2-48a8-b913-d201ac6ca409/scenarios')
+    const response = await request.del('/workflows/8a126b08-f5e2-48a8-b913-d201ac6ca409/paths')
 
     expect(response.status).toBe(204);
   });
 
   test('should return 400 for invalid uuid', async () => {
 
-    const response = await request.del('/workflows/8a126b08/scenarios')
+    const response = await request.del('/workflows/8a126b08/paths')
 
     expect(response.status).toBe(400);
     expect(response.body.message).toEqual('Invalid uuid');
@@ -252,7 +254,7 @@ describe('DELETE /workflows/:id/scenarios', () => {
 
   test('should return 404 for workflow not found', async () => {
 
-    const response = await request.del('/workflows/7a126b08-f5e2-48a8-b913-d201ac6ca408/scenarios')
+    const response = await request.del('/workflows/7a126b08-f5e2-48a8-b913-d201ac6ca408/paths')
 
     expect(response.status).toBe(404);
     expect(response.body.message).toEqual('Workflow not found');
