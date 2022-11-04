@@ -1,6 +1,6 @@
 {
   "name": "@flowbuild/test-server",
-  "version": "1.0.1",
+  "version": "1.2.0",
   "description": "Server that encapsulates testing features for flowbuild.",
   "main": "src/server.js",
   "scripts": {
