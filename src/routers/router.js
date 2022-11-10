@@ -4,8 +4,10 @@ const cors = require('koa2-cors');
 const fs = require('fs');
 const baseValidator = require('../validators/base');
 const validatePath = require('../validators/paths');
+const validateFeature = require('../validators/features');
 const healthController = require('../controllers/healthCheck');
 const pathsController = require('../controllers/paths');
+const featuresController = require('../controllers/features');
 
 module.exports = (opts = {}) => {
   const router = new Router();
@@ -47,8 +49,16 @@ module.exports = (opts = {}) => {
     pathsController.calculatePathsForBlueprint
   );
   
+  const features = Router();
+  features.prefix('/features');
+  features.post('/',
+    validateFeature.validateSaveFeature,
+    featuresController.saveFeature
+  );
+
   router.use(workflows.routes());
   router.use(paths.routes());
+  router.use(features.routes());
 
   return router; 
 }
