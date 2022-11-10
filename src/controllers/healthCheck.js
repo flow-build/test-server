@@ -4,7 +4,8 @@ const healtchCheck = async (ctx, next) => {
   ctx.status = 200;
   ctx.body = {
     message: 'Tests Server running',
-    version: pkg.version
+    version: pkg.version,
+    coreVersion: pkg.dependencies['@flowbuild/test-core']
   }
 
   return next();
