@@ -55,6 +55,9 @@ module.exports = (opts = {}) => {
     baseValidator.validateUUID,
     featuresController.getFeatureById
   );
+  features.get('/name/:workflow_name',
+    featuresController.getFeatureByWorkflowName
+  );
   features.get('/',
     featuresController.getAllFeatures
   );

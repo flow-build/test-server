@@ -18,7 +18,7 @@ const saveFeature = async (workflow_name, feature) => {
 }
 
 const getFeatureByWorkflowName = async (workflow_name) => {
-  logger.debug('getFeatureByName service called');
+  logger.debug('getFeatureByWorkflowName service called');
 
   const feature = await db('features').where('workflow_name', workflow_name).first();
 
@@ -28,7 +28,7 @@ const getFeatureByWorkflowName = async (workflow_name) => {
 const getAllFeatures = async () => {
   logger.debug('getAllFeatures service called');
 
-  const features = await db('features');
+  const features = await db('features').orderBy('updated_at', 'desc');
 
   return features;
 }

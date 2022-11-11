@@ -83,6 +83,30 @@ const getFeatureById = async (ctx, next) => {
   return next();
 }
 
+const getFeatureByWorkflowName = async (ctx, next) => {
+  logger.debug('getFeatureByWorkflowName controller called');
+
+  const { workflow_name } = ctx.params;
+
+  try {
+    const feature = await featuresServices.getFeatureByWorkflowName(workflow_name);
+
+    if (feature) {
+      ctx.status = 200;
+      ctx.body = serializeFeatureFile(feature);
+    } else {
+      ctx.status = 404;
+      ctx.body = {
+        message: 'Feature not found'
+      }
+    }
+  } catch(err) {
+    throw new Error(err);
+  }
+
+  return next();
+}
+
 const deleteFeature = async (ctx, next) => {
   logger.debug('deleteFeature controller called');
 
@@ -110,5 +134,6 @@ module.exports = {
   saveFeature,
   deleteFeature,
   getAllFeatures,
-  getFeatureById
+  getFeatureById,
+  getFeatureByWorkflowName
 }
