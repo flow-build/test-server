@@ -64,3 +64,26 @@ describe('POST /features', () => {
     expect(response.body.errors[0].message).toEqual("must have required property 'feature'");
   });
 });
+
+describe('DELETE /features/:id', () => {
+  test('should return 204', async () => {
+    const response = await request.del('/features/0bbed45c-59e9-4e9a-80af-8d8ae83dbe55');
+    
+    expect(response.status).toBe(204);
+    expect(response.body.length).toBeFalsy();
+  });
+
+  test('should return 404 for non existing feature', async () => {
+    const response = await request.del('/features/5bbed45c-59e9-4e9a-80af-8d8ae83dbe22');
+
+    expect(response.status).toBe(404);
+    expect(response.body.message).toEqual('Feature not found');
+  });
+
+  test('should return 400 for invalid uuid', async () => {
+    const response = await request.del('/features/123456');
+
+      expect(response.status).toBe(400);
+      expect(response.body.message).toEqual('Invalid uuid');
+  });
+});

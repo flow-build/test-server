@@ -25,7 +25,16 @@ const getFeatureByName = async (workflow_name) => {
   return feature;
 }
 
+const deleteFeature = async (id) => {
+  logger.debug('deleteFeature service called');
+
+  const featureDeleted = await db('features').where('id', id).del();
+
+  return featureDeleted;
+}
+
 module.exports = {
   saveFeature,
-  getFeatureByName
+  getFeatureByName,
+  deleteFeature
 }

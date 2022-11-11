@@ -26,6 +26,30 @@ const saveFeature = async (ctx, next) => {
   return next();
 }
 
+const deleteFeature = async (ctx, next) => {
+  logger.debug('deleteFeature controller called');
+
+  const { id } = ctx.params;
+
+  try {
+    const featureDeleted = await featuresServices.deleteFeature(id);
+
+    if (featureDeleted) {
+      ctx.status = 204;
+    } else {
+      ctx.status = 404;
+      ctx.body = {
+        message: 'Feature not found'
+      }
+    }
+  } catch(err) {
+    throw new Error(err);
+  }
+
+  return next();
+}
+
 module.exports = {
-  saveFeature
+  saveFeature,
+  deleteFeature
 }

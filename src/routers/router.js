@@ -55,6 +55,10 @@ module.exports = (opts = {}) => {
     validateFeature.validateSaveFeature,
     featuresController.saveFeature
   );
+  features.del('/:id',
+    baseValidator.validateUUID,
+    featuresController.deleteFeature
+  );
 
   router.use(workflows.routes());
   router.use(paths.routes());
