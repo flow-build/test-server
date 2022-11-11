@@ -2,9 +2,16 @@ const { logger } = require('../utils/logger');
 const featuresServices = require('../services/features');
 const gherkin = require('gherkin');
 const parser = new gherkin.Parser();
+const gherkinParse = require('gherkin-parse');
 
-const serializeFeatureFile = (feature) => {
-  return feature.feature;
+const serializeFeatureFile = ({feature}) => {
+  const gherkinDocument = {
+    type: 'GherkinDocument',
+    feature: {
+      ...feature
+    }
+  }
+  return gherkinParse.convertJSONToFeatureFile(gherkinDocument);
 }
 
 const serializeNoFeatureFile = (feature) => {
@@ -52,6 +59,30 @@ const getAllFeatures = async (ctx, next) => {
   return next();
 }
 
+const getFeatureById = async (ctx, next) => {
+  logger.debug('getFeatureById controller called');
+
+  const { id } = ctx.params;
+
+  try {
+    const feature = await featuresServices.getFeatureById(id);
+
+    if (feature) {
+      ctx.status = 200;
+      ctx.body = serializeFeatureFile(feature);
+    } else {
+      ctx.status = 404;
+      ctx.body = {
+        message: 'Feature not found'
+      }
+    }
+  } catch(err) {
+    throw new Error(err);
+  }
+
+  return next();
+}
+
 const deleteFeature = async (ctx, next) => {
   logger.debug('deleteFeature controller called');
 
@@ -78,5 +109,6 @@ const deleteFeature = async (ctx, next) => {
 module.exports = {
   saveFeature,
   deleteFeature,
-  getAllFeatures
+  getAllFeatures,
+  getFeatureById
 }

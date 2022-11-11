@@ -74,6 +74,30 @@ describe('GET /features', () => {
   });
 });
 
+describe('GET /features/:id', () => {
+  test('should return 200', async () => {
+    const response = await request.get('/features/0bbed45c-59e9-4e9a-80af-8d8ae83dbe55');
+    
+    expect(response.status).toBe(200);
+    expect(response.body).toBeDefined();
+    expect(response.body.message).not.toBeDefined();
+  });
+
+  test('should return 404 for non existing feature', async () => {
+    const response = await request.get('/features/5bbed45c-59e9-4e9a-80af-8d8ae83dbe22');
+
+    expect(response.status).toBe(404);
+    expect(response.body.message).toEqual('Feature not found');
+  });
+
+  test('should return 400 for invalid uuid', async () => {
+    const response = await request.get('/features/123456');
+
+      expect(response.status).toBe(400);
+      expect(response.body.message).toEqual('Invalid uuid');
+  });
+});
+
 describe('DELETE /features/:id', () => {
   test('should return 204', async () => {
     const response = await request.del('/features/0bbed45c-59e9-4e9a-80af-8d8ae83dbe55');

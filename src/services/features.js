@@ -33,6 +33,14 @@ const getAllFeatures = async () => {
   return features;
 }
 
+const getFeatureById = async (id) => {
+  logger.debug('getFeatureById service called');
+
+  const feature = await db('features').where('id', id).first();
+
+  return feature;
+}
+
 const deleteFeature = async (id) => {
   logger.debug('deleteFeature service called');
 
@@ -45,5 +53,6 @@ module.exports = {
   saveFeature,
   getFeatureByWorkflowName,
   deleteFeature,
-  getAllFeatures
+  getAllFeatures,
+  getFeatureById
 }

@@ -51,6 +51,10 @@ module.exports = (opts = {}) => {
   
   const features = Router();
   features.prefix('/features');
+  features.get('/:id',
+    baseValidator.validateUUID,
+    featuresController.getFeatureById
+  );
   features.get('/',
     featuresController.getAllFeatures
   );
