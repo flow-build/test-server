@@ -65,6 +65,15 @@ describe('POST /features', () => {
   });
 });
 
+describe('GET /features', () => {
+  test('should return 200', async () => {
+    const response = await request.get('/features');
+    
+    expect(response.status).toBe(200);
+    expect(response.body.length).toBeTruthy();
+  });
+});
+
 describe('DELETE /features/:id', () => {
   test('should return 204', async () => {
     const response = await request.del('/features/0bbed45c-59e9-4e9a-80af-8d8ae83dbe55');

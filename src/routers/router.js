@@ -51,6 +51,9 @@ module.exports = (opts = {}) => {
   
   const features = Router();
   features.prefix('/features');
+  features.get('/',
+    featuresController.getAllFeatures
+  );
   features.post('/',
     validateFeature.validateSaveFeature,
     featuresController.saveFeature
