@@ -21,12 +21,6 @@ exports.seed = async function(knex) {
       workflow_name: mediumBP.name,
       name: featureMediumBP.feature.name,
       feature: featureMediumBP.feature
-    },
-    {
-      id: '86923b7b-8dce-4284-8b64-aaee1cee0ae2',
-      workflow_name: averageBP.name,
-      name:featureAverageBP.feature.name,
-      feature: featureAverageBP.feature
     }
   ])
 }
