@@ -25,6 +25,30 @@ const getPathsByWorkflowId = async (ctx, next) => {
   return next();
 }
 
+const getPathsByWorkflowName = async (ctx, next) => {
+  logger.debug('getPathsByWorkflowName controller called');
+
+  const { workflow_name } = ctx.params;
+
+  try {
+    const data = await pathsServices.getPathsByWorkflowName(workflow_name);
+
+    if (data.length === 0) {
+      ctx.status = 404
+      ctx.body = {
+        message: `paths not found for workflow '${workflow_name}'`
+      }
+    } else {
+      ctx.status = 200;
+      ctx.body = data;
+    }
+  } catch (err) {
+    throw new Error(err);
+  }
+
+  return next();
+}
+
 const calculatePathsForBlueprint = async (ctx, next) => {
   logger.debug('calculatePathsForBlueprint controller called');
 
@@ -164,6 +188,7 @@ const deletePathsByWorkflowId = async (ctx, next) => {
 
 module.exports = {
   getPathsByWorkflowId,
+  getPathsByWorkflowName,
   calculatePathsForBlueprint,
   savePathsForWorkflowId,
   updatePathName,

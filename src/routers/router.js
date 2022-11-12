@@ -27,6 +27,12 @@ module.exports = (opts = {}) => {
     baseValidator.validateUUID,
     pathsController.getPathsByWorkflowId
   );
+  workflows.get('/name/:workflow_name/paths',
+    pathsController.getPathsByWorkflowName
+  );
+  workflows.get('/name/:workflow_name/features',
+    featuresController.getFeatureByWorkflowName
+  );
   workflows.post('/:id/paths/save',
     baseValidator.validateUUID,
     pathsController.savePathsForWorkflowId
@@ -54,9 +60,6 @@ module.exports = (opts = {}) => {
   features.get('/:id',
     baseValidator.validateUUID,
     featuresController.getFeatureById
-  );
-  features.get('/name/:workflow_name',
-    featuresController.getFeatureByWorkflowName
   );
   features.get('/',
     featuresController.getAllFeatures

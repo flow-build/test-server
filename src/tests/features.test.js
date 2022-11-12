@@ -4,6 +4,7 @@ const supertest = require('supertest');
 const { startServer } = require('../app');
 const { db } = require('../utils/db');
 const simpleFeature = require('fs').readFileSync('./db/seeds/features/simpleBP.feature', 'utf8');
+const averageFeature = require('fs').readFileSync('./db/seeds/features/averageBP.feature', 'utf8');
 const nock = require('nock');
 
 nock(process.env.FLOWBUILD_URL)
@@ -32,16 +33,42 @@ afterAll(async () => {
 });
 
 describe('POST /features', () => {
-  test('should return 201', async () => {
+  test('should return 201 with paths attached', async () => {
+    
     const response = await request.post('/features').type('form')
       .send({
-        workflow_name: 'Test',
+        workflow_name: 'Average BP',
+        feature: averageFeature
+      });
+    
+    expect(response.status).toBe(201);
+    expect(response.body.feature.name).toEqual('Average BP');
+    expect(response.body.feature.workflow_name).toEqual('Average BP');
+    expect(response.body.message).toEqual("feature attached to workflow 'Average BP' paths");
+  });
+
+  test('should return 201 with paths attached', async () => {
+    const response = await request.post('/features').type('form')
+      .send({
+        workflow_name: 'No Paths',
         feature: simpleFeature
       });
     
     expect(response.status).toBe(201);
-    expect(response.body.name).toEqual('Simple BP');
-    expect(response.body.workflow_name).toEqual('Test');
+    expect(response.body.feature.name).toEqual('Simple BP');
+    expect(response.body.feature.workflow_name).toEqual('No Paths');
+    expect(response.body.message).toEqual("feature not attached to any path: no paths for workflow 'No Paths'");
+  });
+
+  test('should return 400 for existing workflow feature', async () => {
+    const response = await request.post('/features').type('form')
+      .send({
+        workflow_name: 'Simple BP',
+        feature: simpleFeature
+      });
+    
+    expect(response.status).toBe(400);
+    expect(response.body.message).toEqual("workflow 'Simple BP' already has a feature");
   });
 
   test('should return 400 for missing workflow_name', async () => {
@@ -98,9 +125,9 @@ describe('GET /features/:id', () => {
   });
 });
 
-describe('GET /features/name/:workflow_name', () => {
+describe('GET /workflows/name/:workflow_name/features', () => {
   test('should return 200', async () => {
-    const response = await request.get('/features/name/Simple BP');
+    const response = await request.get('/workflows/name/Simple BP/features');
     
     expect(response.status).toBe(200);
     expect(response.body).toBeDefined();
@@ -108,10 +135,10 @@ describe('GET /features/name/:workflow_name', () => {
   });
 
   test('should return 404 for non existing feature', async () => {
-    const response = await request.get('/features/name/Difficult');
+    const response = await request.get('/workflows/name/Difficult/features');
 
     expect(response.status).toBe(404);
-    expect(response.body.message).toEqual('Feature not found');
+    expect(response.body.message).toEqual(`feature not found for workflow 'Difficult'`);
   });
 });
 

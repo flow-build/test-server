@@ -58,6 +58,23 @@ describe('GET /workflows/:id/paths', () => {
   });
 });
 
+describe('GET /workflows/name/:workflow_name/paths', () => {
+  test('should return 200', async () => {
+    const response = await request.get('/workflows/name/Simple BP/paths');
+    
+    expect(response.status).toBe(200);
+    expect(response.body).toBeDefined();
+    expect(response.body.message).not.toBeDefined();
+  });
+
+  test('should return 404 for non existing feature', async () => {
+    const response = await request.get('/workflows/name/Difficult/paths');
+
+    expect(response.status).toBe(404);
+    expect(response.body.message).toEqual(`paths not found for workflow 'Difficult'`);
+  });
+});
+
 describe('PATCH /paths/:id', () => {
   test('should return 200', async () => {
 

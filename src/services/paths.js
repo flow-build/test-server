@@ -12,6 +12,14 @@ const getPathsByWorkflowId = async (workflow_id) => {
   return data;
 }
 
+const getPathsByWorkflowName = async (workflow_name) => {
+  logger.debug('getPathsByWorkflowName service called');
+
+  const data = await db('paths').where('workflow_name', workflow_name);
+
+  return data;
+}
+
 const getPathById = async (path_id) => {
   logger.debug('getPathById service called');
 
@@ -92,6 +100,7 @@ const deletePathsByWorkflowId = async (workflow_id) => {
 
 module.exports = {
   getPathsByWorkflowId,
+  getPathsByWorkflowName,
   getPathById,
   calculatePathsForBlueprint,
   getWorkflowFromFlowbuild,

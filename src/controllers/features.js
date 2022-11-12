@@ -1,5 +1,6 @@
 const { logger } = require('../utils/logger');
 const featuresServices = require('../services/features');
+const pathsServices = require('../services/paths');
 const gherkin = require('gherkin');
 const parser = new gherkin.Parser();
 const gherkinParse = require('gherkin-parse');
@@ -29,13 +30,30 @@ const saveFeature = async (ctx, next) => {
 
   try {
     const { workflow_name, feature } = ctx.request.body;
+    const featureFetched = await featuresServices.getFeatureByWorkflowName(workflow_name);
+
+    if (!!featureFetched) {
+      ctx.status = 400;
+      ctx.body = {
+        message: `workflow '${workflow_name}' already has a feature`
+      }
+      return next();
+    }
+
+    const paths = await pathsServices.getPathsByWorkflowName(workflow_name);
+    let message = `feature attached to workflow '${workflow_name}' paths`;
+
+    if (paths.length == 0) {
+      message = `feature not attached to any path: no paths for workflow '${workflow_name}'`
+    }
     const featureParsed = parser.parse(feature).feature;
 
     const featureSaved = await featuresServices.saveFeature(workflow_name, featureParsed);
 
     ctx.status = 201;
     ctx.body = {
-      ...serializeNoFeatureFile({ ...featureSaved })
+      message,
+      feature: { ...serializeNoFeatureFile({ ...featureSaved }) }
     }
   } catch(err) {
     throw new Error(err);
@@ -93,11 +111,11 @@ const getFeatureByWorkflowName = async (ctx, next) => {
 
     if (feature) {
       ctx.status = 200;
-      ctx.body = serializeFeatureFile(feature);
+      ctx.body = serializeNoFeatureFile(feature);
     } else {
       ctx.status = 404;
       ctx.body = {
-        message: 'Feature not found'
+        message: `feature not found for workflow '${workflow_name}'`
       }
     }
   } catch(err) {
